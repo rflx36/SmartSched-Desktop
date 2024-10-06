@@ -1,3 +1,80 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+p,
+label,
+input {
+    -webkit-user-select: none;
+    /* Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* IE10+/Edge */
+    user-select: none;
+    /* Standard */
+  
+}
+
+img {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+
+@layer base {
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type='number'] {
+        -webkit-appearance: none;
+        margin: 0;
+        -moz-appearance: textfield !important;
+        appearance: none;
+    }
+
+    @font-face {
+        font-family: manrope-extrabold;
+        font-weight: bolder;
+        src: url('/fonts/Manrope-ExtraBold.ttf');
+    }
+
+    @font-face {
+        font-family: manrope-bold;
+        font-weight: bold;
+        src: url('/fonts/Manrope-Bold.ttf');
+    }
+
+    @font-face {
+        font-family: manrope-semibold;
+        font-weight: 600;
+        src: url('/fonts/Manrope-SemiBold.ttf');
+    }
+
+    @font-face {
+        font-family: manrope-medium;
+        font-weight: medium;
+        src: url('/fonts/Manrope-Medium.ttf');
+    }
+
+    @font-face {
+        font-family: manrope-regular;
+        font-weight: normal;
+        src: url('/fonts/Manrope-Regular.ttf');
+
+    }
+
+    @font-face {
+        font-family: manrope-light;
+        font-weight: 300;
+        src: url('/fonts/Manrope-Light.ttf');
+
+    }
+
+    @font-face {
+        font-family: manrope-extralight;
+        font-weight: lighter;
+        src: url('/fonts/Manrope-ExtraLight.ttf');
+
+    }
+}

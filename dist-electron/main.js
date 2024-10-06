@@ -16,8 +16,9 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs")
     },
-    minHeight: 720,
-    minWidth: 1280
+    minHeight: 768,
+    minWidth: 1366,
+    backgroundColor: "#F5F5F5"
   });
   win.webContents.on("did-finish-load", () => {
     win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
