@@ -1,36 +1,65 @@
+import { onAuthStateChanged, User } from "firebase/auth";
 import ModalSections from "./components/modals/modal_sections";
 import Navbar from "./components/navbar"
 import Sidebar from "./components/sidebar"
 import PageSetup from "./pages/setup page";
 import { useUIStore } from "./stores/ui_store"
+import SignInPage from "./pages/auth/sign in";
+import { auth } from "./firebase/firebase_config";
+import { useEffect, useState } from "react";
 
 function App() {
   const ui_state = useUIStore();
-  return (
-    <div className="flex h-full">
-      <Sidebar />
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-      <div className="w-[calc(100%-285px)]">
-        {
-          (ui_state.get.modal != "closed") ?
-            (
-              <div className="w-[calc(100%-285px)] h-full grid place-content-center absolute ">
-                <div className="w-full h-full bg-black opacity-20 z-20 absolute "></div>
-                <div className="z-30">  
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => setCurrentUser((user) ? user : null))
+  }, [])
 
-                  {(ui_state.get.modal == "sections") && <ModalSections />}
-                </div>
-              </div>
-            )
-            : <></>
-        }
+  if (currentUser != auth.currentUser) {
+    setCurrentUser(auth.currentUser);
+  }
 
-        <Navbar />
-        <Page />
+  // if (auth.currentUser) {
+  //   updateProfile(auth.currentUser, {
+  //     displayName: "This is a test account"
+  //   })
+  // }
+
+  if (currentUser == null) {
+    return (
+      <div className="w-full h-full grid place-content-center bg-baseline-base">
+        <SignInPage />
       </div>
+    )
+  }
+  else {
+    return (
+      <div className="flex h-full">
+        <Sidebar />
 
-    </div>
-  )
+        <div className="w-[calc(100%-285px)]">
+          {
+            (ui_state.get.modal != "closed") ?
+              (
+                <div className="w-[calc(100%-285px)] h-full grid place-content-center absolute ">
+                  <div className="w-full h-full bg-black opacity-20 z-20 absolute "></div>
+                  <div className="z-30">
+
+                    {(ui_state.get.modal == "sections") && <ModalSections />}
+                  </div>
+                </div>
+              )
+              : <></>
+          }
+
+          <Navbar name={currentUser.displayName} />
+          <Page />
+        </div>
+
+      </div>
+    )
+  }
 }
 
 function Page() {

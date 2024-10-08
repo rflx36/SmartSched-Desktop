@@ -14,7 +14,9 @@ export default {
 
 
     extend: {
-
+      transitionTimingFunction: {
+        'bezier-in': "cubic-bezier(0.405, 1.070, 0.435, 0.780); "
+      },
       colors: {
         "grey": {
           50: "#FAFAFA",
@@ -34,7 +36,9 @@ export default {
           "outline": "#D4D4D4",
           "border-base": "#EDEDED",
           "border-outline": "#FAFAFA"
-        }
+        },
+        "invalid": "#F57272",
+        "valid": "#96E99E",
       },
 
 

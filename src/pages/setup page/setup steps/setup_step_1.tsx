@@ -119,7 +119,7 @@ export default function SetupStep_1() {
                                                 </div>
                                                 <div className="w-[1px] h-1/2 bg-baseline-outline" />
 
-                                                <div className="w-[150px] h-full mx-4 flex items-center">
+                                                <div className="w-[150px] h-full mx-4 flex items-center tabular-nums">
                                                     <p className="font-manrope-semibold text-[16px] text-grey-500">{GetDockedSections()}</p>
                                                     <p className="m-1 font-manrope-medium text-grey-400 text-[12px]">({docked.sections} sections)</p>
                                                 </div>
@@ -151,7 +151,7 @@ export default function SetupStep_1() {
                                         <div className="h-[290px] w-full mt-[2px] overflow-y-scroll">
                                             {(GetDockedSubjects != null) && GetDockedSubjects()?.map((x, i) => {
                                                 return (
-                                                    <div className="h-12 w-full flex gap-2 font-manrope-semibold text-grey-500 text-[14px] border-b border-baseline-outline">
+                                                    <div key={i} className="h-12 w-full flex gap-2 font-manrope-semibold text-grey-500 text-[14px] border-b border-baseline-outline">
                                                         <div className="w-[300px] ml-6 flex items-center">
                                                             <p>{x.description}</p>
 
@@ -195,7 +195,7 @@ export default function SetupStep_1() {
                                                                     </div>
                                                                     <div className="w-[1px] h-1/2 bg-baseline-outline" />
 
-                                                                    <div className="w-[150px] h-full mx-4 flex items-center">
+                                                                    <div className="w-[150px] h-full mx-4 flex items-center tabular-nums">
                                                                         <p className="font-manrope-semibold text-[16px] text-grey-500">{section_text}</p>
                                                                         <p className="m-1 font-manrope-medium text-grey-400 text-[12px]">({x.sections} sections)</p>
                                                                     </div>
