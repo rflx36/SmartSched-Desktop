@@ -11,7 +11,8 @@ interface InputType {
     required?: boolean,
     size?: "small" | "base" | "large" | "larger",
     placeholder?: string,
-    maxLength?: number
+    maxLength?: number,
+    invalid?: string
 }
 
 
@@ -38,7 +39,7 @@ export default function Input(props: InputType) {
             case "large":
                 return "min-w-64";
             case "larger":
-                return "min-w-[272px]"
+                return "min-w-[262px]"
             default:
                 return "max-w-48";
         }
@@ -49,7 +50,13 @@ export default function Input(props: InputType) {
         <div className="flex flex-col m-1 w-auto">
             {
                 (props.label != null) &&
-                (<label className="font-manrope-semibold text-sm mb-1" >{props.label}</label>)
+                (
+                    <div className="flex gap-1">
+
+                        <label className="font-manrope-semibold text-sm mb-1" >{props.label}</label>
+                        {(props.invalid != null)&&(<label className="text-red-400 font-manrope-bold text-[12px] mb-1"> *{props.invalid}</label>)}
+                    </div>
+                )
             }
             <input
                 type={props.type}

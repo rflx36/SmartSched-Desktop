@@ -54,7 +54,6 @@ export interface SubjectHasLabLec {
 }
 
 export interface CurrentSemester {
-    semester: SemesterType,
     year: YearType,
     subjects: Array<Subject | SubjectHasLabLec>,
     course: string,
@@ -72,8 +71,6 @@ export interface ClassSectionType {
 export interface UIStateType {
     sidebar_active: SidebarsType,
     sidebar_setup_step: 0 | 1 | 2 | 3 | 4 | number;
-
-    background: boolean;
     modal: ModalsType,
     dropdown_course: string
 }
@@ -86,8 +83,7 @@ export interface ClassSessionType {
     time_start: TimeType,
     time_end: TimeType,
     courses: Array<CourseType>,
-    rooms: Array<string>,
-    rooms_lab: Array<string>,
+    rooms: Array<RoomType>,
     break_time_start: TimeType,
     break_time_end: TimeType
 }
@@ -111,4 +107,14 @@ export interface RoomType {
     room_name: string,
     is_realtime: boolean,
     realtime_id?: string
+}
+
+
+
+export interface SubjectDetailType {
+    description: string,
+    code: string,
+    hours_allocated: number,
+    is_partitionable: boolean,
+    type: "lecture" | "labaratory"
 }

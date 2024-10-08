@@ -49,7 +49,7 @@ function SetupProgressContainer() {
         ui_state.set();
     }
     return (
-        <div className="w-full h-[100px] flex justify-center bg-baseline-base bg-opacity-50  border-b-baseline-outline border backdrop-blur-xl">
+        <div className="w-full h-[80px] flex justify-center bg-baseline-base bg-opacity-50  border-b-baseline-outline border backdrop-blur-0">
             {
                 (ui_state.get.sidebar_setup_step != 0) ? (
                     <div className="absolute w-max left-0 h-full bottom-0 top-0 my-auto flex items-center">
@@ -61,13 +61,15 @@ function SetupProgressContainer() {
                 ) : <></>
             }
 
+           
+
             <div className="flex justify-center items-center gap-[10px] w-[430px] ">
                 {(ui_state.get.sidebar_setup_step >= 1) ? (<div className="h-2 w-[100px] rounded-full bg-grey-900" />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
                 {(ui_state.get.sidebar_setup_step >= 2) ? (<div className="h-2 w-[100px] rounded-full bg-grey-900" />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
                 {(ui_state.get.sidebar_setup_step >= 3) ? (<div className="h-2 w-[100px] rounded-full bg-grey-900" />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
                 {(ui_state.get.sidebar_setup_step >= 4) ? (<div className="h-2 w-[100px] rounded-full bg-grey-900" />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
             </div>
-            <div className="w-[430px] bottom-[10px] absolute flex justify-center font-manrope-medium text-[16px]">
+            <div className="w-[430px] bottom-[6px] absolute flex justify-center font-manrope-medium text-[16px]">
                 <p>{ui_state.get.sidebar_setup_step} / 4</p>
             </div>
 
@@ -76,3 +78,37 @@ function SetupProgressContainer() {
 }
 
 
+
+export function SetupProceedButton(props: { valid: boolean, on_press: () => void }) {
+    const ui_state = useUIStore();
+
+    const ProgressActionNext = () => {
+        props.on_press();
+        ui_state.get.sidebar_setup_step = ui_state.get.sidebar_setup_step + 1;
+        ui_state.set();
+    }
+
+
+    if (props.valid) {
+        return (
+            <div className="w-[1008px] h-full absolute top-0 pointer-events-none">
+                <button onClick={ProgressActionNext} className="pointer-events-auto z-10 w-[400px] absolute right-0 bottom-2  h-[40px] bg-grey-750 border border-grey-900 rounded-md hover:bg-grey-600" >
+                    <p className="text-grey-100 font-manrope-bold text-[18px]">Proceed</p>
+                </button>
+
+            </div>
+        )
+    }
+    else {
+        return (
+            <div className="w-[1008px] h-full  absolute top-0 pointer-events-none">
+                <button className="cursor-not-allowed z-10 w-[400px] pointer-events-auto opacity-25 absolute right-0 bottom-2  h-[40px] bg-grey-750 border border-grey-900 rounded-md " >
+                    <p className="text-grey-100 font-manrope-bold text-[18px]">Proceed</p>
+                </button>
+
+            </div>
+        )
+    }
+
+
+}

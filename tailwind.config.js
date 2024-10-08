@@ -1,3 +1,5 @@
+import { transform } from 'typescript';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{html,js,ts,jsx,tsx}"],
@@ -8,7 +10,7 @@ export default {
       "manrope-semibold": ["manrope-semibold"],
       "manrope-bold": ["manrope-bold"]
     },
-   
+
 
 
     extend: {
@@ -33,7 +35,9 @@ export default {
           "border-base": "#EDEDED",
           "border-outline": "#FAFAFA"
         }
-      }
+      },
+
+
     },
   },
   plugins: [],

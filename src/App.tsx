@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import ModalSections from "./components/modals/modal_sections";
 import Navbar from "./components/navbar"
 import Sidebar from "./components/sidebar"
 import PageSetup from "./pages/setup page";
@@ -11,7 +11,20 @@ function App() {
       <Sidebar />
 
       <div className="w-[calc(100%-285px)]">
-        {(ui_state.get.background) ? <div className="w-[calc(100%-285px)] h-full bg-black absolute opacity-20 z-20"></div> : <></>}
+        {
+          (ui_state.get.modal != "closed") ?
+            (
+              <div className="w-[calc(100%-285px)] h-full grid place-content-center absolute ">
+                <div className="w-full h-full bg-black opacity-20 z-20 absolute "></div>
+                <div className="z-30">  
+
+                  {(ui_state.get.modal == "sections") && <ModalSections />}
+                </div>
+              </div>
+            )
+            : <></>
+        }
+
         <Navbar />
         <Page />
       </div>

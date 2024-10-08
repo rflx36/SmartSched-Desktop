@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { CourseType, RoomType, TimeType } from "../../../types/types"
 import { DEFAULT_CLASS_SESSIONS } from "../../../constants";
 import Border from "../../../components/border";
@@ -8,12 +8,16 @@ import { ConvertTimeToValue } from "../../../core/utils/time_converter";
 import { useUIStore } from "../../../stores/ui_store";
 import SwitchOption from "../../../components/switch option";
 import Modifier from "../../../components/modifier";
+import { SetupProceedButton } from "..";
+import { useSessionStore } from "../../../stores/session_store";
 
 
 
 
 export default function SetupStep_0() {
     const ui_state = useUIStore();
+    const class_session = useSessionStore();
+
     const [timeStart, setTimeStart] = useState<TimeType>(DEFAULT_CLASS_SESSIONS.time_start);
     const [timeEnd, setTimeEnd] = useState<TimeType>(DEFAULT_CLASS_SESSIONS.time_end);
     const [breakTimeStart, setBreakTimeStart] = useState<TimeType>(DEFAULT_CLASS_SESSIONS.break_time_start);
@@ -31,6 +35,15 @@ export default function SetupStep_0() {
 
     const [currentEditing, setCurrentEditing] = useState<RoomType | CourseType | null>(null);
 
+    useEffect(() => {
+        setTimeStart(class_session.get.time_start);
+        setTimeEnd(class_session.get.time_end);
+        setBreakTimeStart(class_session.get.break_time_start);
+        setBreakTimeEnd(class_session.get.break_time_end);
+        setCourses(class_session.get.courses);
+        setRooms(class_session.get.rooms);
+    }, []);
+
     const GetAvailableTime = (t_start: TimeType, t_end: TimeType) => {
         const available_time_value = ConvertTimeToValue(t_end) - ConvertTimeToValue(t_start);
         let available_time = "";
@@ -47,7 +60,8 @@ export default function SetupStep_0() {
         }
         return available_time
     }
-
+    const available_hours_result = GetAvailableTime(timeStart, timeEnd)
+    const available_break_hours_result = GetAvailableTime(breakTimeStart, breakTimeEnd);
     const AddRoom = () => {
 
         const current_room = rooms;
@@ -63,8 +77,8 @@ export default function SetupStep_0() {
         setModalRoomType(0);
         setModalRoomRealtimeId("");
         ui_state.get.modal = "closed";
-        ui_state.get.background = false;
         ui_state.set();
+        UpdateState();
 
     }
 
@@ -80,8 +94,8 @@ export default function SetupStep_0() {
         setModalCourseName("");
         setModalCourseCode("");
         ui_state.get.modal = "closed";
-        ui_state.get.background = false;
         ui_state.set();
+        UpdateState();
 
     }
     const EditRoom = (value: RoomType) => {
@@ -93,6 +107,7 @@ export default function SetupStep_0() {
             setModalRoomRealtimeId(value.realtime_id as string);
         }
         SetRoom();
+        UpdateState();
     }
     const EditCourse = (value: CourseType) => {
         setIsModalEditing(true);
@@ -100,6 +115,7 @@ export default function SetupStep_0() {
         setModalCourseName(value.name);
         setModalCourseCode(value.code);
         SetCourse();
+        UpdateState();
     }
 
     const ConfirmEditRoom = () => {
@@ -121,8 +137,8 @@ export default function SetupStep_0() {
         setModalRoomType(0);
         setModalRoomRealtimeId("");
         ui_state.get.modal = "closed";
-        ui_state.get.background = false;
         ui_state.set();
+        UpdateState();
 
     }
     const ConfirmEditCourse = () => {
@@ -140,26 +156,26 @@ export default function SetupStep_0() {
         setModalCourseName("");
         setModalCourseCode("");
         ui_state.get.modal = "closed";
-        ui_state.get.background = false;
         ui_state.set();
+        UpdateState();
     }
 
 
     const DeleteRoom = (value: RoomType) => {
         setRooms(rooms.filter((x) => x != value));
+        UpdateState();
     }
     const DeleteCourse = (value: CourseType) => {
         setCourses(courses.filter((x) => x != value));
+        UpdateState();
     }
 
     const SetRoom = () => {
-        ui_state.get.background = true;
         ui_state.get.modal = "rooms";
         ui_state.set();
 
     }
     const SetCourse = () => {
-        ui_state.get.background = true;
         ui_state.get.modal = "courses";
         ui_state.set();
 
@@ -172,12 +188,29 @@ export default function SetupStep_0() {
         setModalCourseCode("");
         setIsModalEditing(false);
         setCurrentEditing(null);
-        ui_state.get.background = false;
         ui_state.get.modal = "closed";
         ui_state.set();
     }
+
+    const UpdateState = () => {
+        class_session.get.time_start = timeStart;
+        class_session.get.time_end = timeEnd;
+        class_session.get.break_time_start = breakTimeStart;
+        class_session.get.break_time_end = breakTimeEnd;
+        class_session.get.courses = courses;
+        class_session.get.rooms = rooms;
+        class_session.set();
+    }
+
+    const room_invalid = rooms.filter(x => x.room_name == modalRoomName.toLocaleUpperCase() && x != currentEditing).length > 0;
+    const course_code_invalid = courses.filter(x => x.code.toLocaleLowerCase() == modalCourseCode.toLocaleLowerCase() && x != currentEditing).length > 0;
+    const course_name_invalid = courses.filter(x => x.name == modalCourseName && x != currentEditing).length > 0;
+    const inputs_are_valid = available_hours_result != "Invalid" && available_break_hours_result != "Invalid" && rooms.length > 0 && courses.length > 0;
+
+
     return (
         <>
+            <SetupProceedButton valid={inputs_are_valid} on_press={UpdateState} />
             <p className="ml-1 font-manrope-semibold text-grey-900 text-[20px]">School Hours</p>
             <Border>
                 <div className="flex ">
@@ -189,7 +222,7 @@ export default function SetupStep_0() {
                                 <div className="bg-baseline-outline rounded-full w-[1px] h-14 m-[6px]"></div>
                                 <div className="w-[175px] flex flex-col">
                                     <label className="font-manrope-semibold text-sm mb-1" >Available Hours</label>
-                                    <p className="mt-2 font-manrope-medium text-[20px] text-grey-400">{GetAvailableTime(timeStart, timeEnd)}</p>
+                                    <p className="mt-2 font-manrope-medium text-[20px] text-grey-400">{available_hours_result}</p>
                                 </div>
                             </div>
                         </Baseline>
@@ -202,7 +235,7 @@ export default function SetupStep_0() {
                                 <div className="bg-baseline-outline rounded-full w-[1px] h-14 m-[6px]"></div>
                                 <div className="w-[175px] flex flex-col">
                                     <label className="font-manrope-semibold text-sm mb-1" >Available Break Hours</label>
-                                    <p className="mt-2 font-manrope-medium text-[20px] text-grey-400">{GetAvailableTime(breakTimeStart, breakTimeEnd)}</p>
+                                    <p className="mt-2 font-manrope-medium text-[20px] text-grey-400">{available_break_hours_result}</p>
                                 </div>
                             </div>
                         </Baseline>
@@ -212,13 +245,13 @@ export default function SetupStep_0() {
             <div className="flex mt-5 justify-between">
                 <div className="w-[500px] ">
                     <p className="ml-1 font-manrope-semibold text-grey-900 text-[20px]">Rooms</p>
-                    <div className="flex flex-col p-1 w-full h-max border  shadow-inner border-white relative bg-neutral-200/80 rounded-lg">
+                    <div className="flex flex-col p-1 w-full h-max border  shadow-inner border-baseline-border-outline relative bg-baseline-border-base rounded-lg">
                         {(ui_state.get.modal == "rooms") ?
                             (
                                 <>
                                     <div className="w-[calc(100%-8px)] absolute z-30 top-[-162px]">
                                         <Baseline widthFull>
-                                            <Input type="text" label="Room Name" value={modalRoomName} onChange={(x) => setModalRoomName(x)} maxLength={14} />
+                                            <Input invalid={(room_invalid) ? "Name existed" : undefined} type="text" label="Room Name" value={modalRoomName} onChange={(x) => setModalRoomName(x)} maxLength={14} />
                                             <label className="ml-1 font-manrope-semibold text-sm mb-1" >Room Type</label>
                                             <div className="flex justify-between items-center">
                                                 <SwitchOption active={modalRoomType} onClick={(x) => setModalRoomType(x)} options={["Normal", "Realtime"]} />
@@ -232,7 +265,7 @@ export default function SetupStep_0() {
                                             <p className="font-manrope-bold text-[16px]">Cancel</p>
                                         </button>
 
-                                        {(modalRoomName != "" && ((modalRoomType == 1 && modalRoomRealtimeId != "") || modalRoomType == 0))
+                                        {(!room_invalid && modalRoomName != "" && ((modalRoomType == 1 && modalRoomRealtimeId != "") || modalRoomType == 0))
                                             ?
                                             (
                                                 <button onClick={(isModalEditing) ? ConfirmEditRoom : AddRoom} className="hover:bg-grey-600 w-[237px] z-30 bg-grey-750 border-grey-900 border rounded-md h-10 m-1 text-grey-50">
@@ -256,11 +289,11 @@ export default function SetupStep_0() {
                                 </button>
                             )
                         }
-                        <div className="w-full min-h-[250px]">
+                        <div className="w-full min-h-[250px] max-h-[calc(100vh-450px)] overflow-scroll mt-1 mb-2 rounded-b-lg ">
                             {
                                 rooms.map((x, i) => {
                                     return (
-                                        <div key={i} className="inline-block w-[237px] h-24 m-1 relative rounded-md bg-baseline-base border border-baseline-outline">
+                                        <div key={i} className="inline-block w-[237px] h-24 mx-1 mb-2 relative rounded-md bg-baseline-base border border-baseline-outline">
                                             <div className="flex items-center mt-1 gap-2">
                                                 <p className="font-manrope-semibold text-grey-400 text-[20px] ml-4">{x.room_name}</p>
                                                 {(x.is_realtime) ? <img className="size-5 hover:url " src="icons/icon-camera.png" title={x.realtime_id} /> : <></>}
@@ -282,18 +315,19 @@ export default function SetupStep_0() {
                         {(ui_state.get.modal == "courses") ?
                             (
                                 <>
-                                    <div className="w-full absolute z-30 top-[-90px]">
+                                    <div className="w-[calc(100%-8px)] absolute z-30 top-[-90px]">
                                         <Baseline widthFull flex>
-                                            <Input type="text" size="larger" label="Course name" value={modalCourseName} onChange={(x) => setModalCourseName(x)} />
-
-                                            <Input type="text" label="Abbreviation" value={modalCourseCode} onChange={(x) => setModalCourseCode(x)} />
+                                            <div className="w-full flex justify-between">
+                                                <Input invalid={course_name_invalid ? "Name existed" : undefined} type="text" size="larger" label="Course name" value={modalCourseName} onChange={(x) => setModalCourseName(x)} />
+                                                <Input invalid={course_code_invalid ? "Code existed" : undefined} type="text" label="Abbreviation" value={modalCourseCode} onChange={(x) => setModalCourseCode(x)} />
+                                            </div>
                                         </Baseline>
                                     </div>
                                     <div className="flex">
                                         <button onClick={Cancel} className=" w-[237px] z-30 bg-baseline-base border-baseline-outline border rounded-md h-10 m-1 text-grey-500 hover:text-grey-750 ">
                                             <p className="font-manrope-bold text-[16px]">Cancel</p>
                                         </button>
-                                        {(modalCourseName != "" && modalCourseCode != "")
+                                        {(modalCourseName != "" && modalCourseCode != "" && !course_code_invalid && !course_name_invalid)
                                             ?
                                             (
                                                 <button onClick={(isModalEditing) ? ConfirmEditCourse : AddCourse} className="hover:bg-grey-600 w-[237px] z-30 bg-grey-750 border-grey-900 border rounded-md h-10 m-1 text-grey-50">
@@ -317,11 +351,11 @@ export default function SetupStep_0() {
                             )
                         }
 
-                        <div className="w-full min-h-[250px]">
+                        <div className="w-full min-h-[250px] max-h-[calc(100vh-450px)] overflow-scroll mt-1 mb-2 rounded-b-lg ">
                             {
                                 courses.map((x, i) => {
                                     return (
-                                        <div key={i} className="w-[calc(100%-8px)] h-max bg-baseline-base border m-1 border-baseline-outline rounded-md m-1 mb-2">
+                                        <div key={i} className="w-[calc(100%-8px)] h-max bg-baseline-base border border-baseline-outline rounded-md mx-1 mb-2">
                                             <p className="font-manrope-semibold text-grey-400 text-[20px] ml-4">{x.code}</p>
                                             <div className="flex justify-between m-1 items-center">
                                                 <p className="ml-3 font-manrope-medium text-grey-400 text-[12px]">{x.name}</p>

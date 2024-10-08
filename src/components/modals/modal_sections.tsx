@@ -1,5 +1,4 @@
 import { useState } from "react"
-import ModalContainer from "./modal_container"
 import { Subject, SubjectHasLabLec, YearType } from "../../types/types";
 import { useSectionStore } from "../../stores/section_store";
 import Checkbox from "../checkbox";
@@ -91,7 +90,7 @@ export default function ModalSections() {
         setSubjectCode("");
         const current_data = sections.get.data;
 
-        const similar_data_index = current_data.findIndex(e => e.course == selected_course && e.semester == selected_sem && e.year == sections!.get.year_active)
+        const similar_data_index = current_data.findIndex(e => e.course == selected_course && e.year == sections!.get.year_active)
 
         if (similar_data_index != -1) {
             current_data[similar_data_index] = { ...current_data[similar_data_index], subjects: subjects };
@@ -100,7 +99,6 @@ export default function ModalSections() {
         }
         else {
             current_data.push({
-                semester: selected_sem,
                 year: sections!.get.year_active,
                 subjects: subjects,
                 course: selected_course,
@@ -114,10 +112,20 @@ export default function ModalSections() {
         setSubjects([]);
     }
 
+    const Close = () => {
+        ui_state.get.modal = "closed";
+        ui_state.set();
+    }
+
     const is_eligible_to_add_subject = (subjectCode.trim() !== '' && subjectTitle.trim() !== '' && ((!lecLab) ? (!isNaN(baseHours)) : (!isNaN(lecHours) && !isNaN(labHours))));
-    
+
     return (
-        <ModalContainer isActive={ui_state.get.modal == "sections"}>
+        <div className="relative size-max bg-grey-100 outline outline-1 outline-neutral-600/10 rounded-lg z-50 px-4 py-2">
+            <button
+                onClick={Close}
+                className="hover:bg-neutral-400/75 size-3 rounded-full p-2 absolute top-2 right-2 bg-neutral-300 grid place-content-center bg-[url('icons/icon-close.png')] bg-no-repeat bg-center bg-[length:10px_10px]" >
+            </button>
+
             {
                 (UIStep == 1) ?
                     (
@@ -133,7 +141,7 @@ export default function ModalSections() {
                                 <Input size="small" label="Sections Amount" type="number" value={sectionAmount} min={1} onChange={(e) => setSectionAmount(e)} />
 
                                 <div className="flex flex-row-reverse">
-                                    <Button text="Proceed" onClick={Proceed} roundedFull isDisabled={!(sectionAmount >= 1 && course != undefined)} />
+                                    <Button text="Proceed" onClick={Proceed} roundedFull widthType="medium" isDisabled={!(sectionAmount >= 1 && course != undefined)} />
                                 </div>
                             </div>
 
@@ -142,7 +150,7 @@ export default function ModalSections() {
                     (
                         <>
                             <div className=" font-manrope-semibold text-sm mb-1 text-neutral-500 flex gap-2">
-                                <button onClick={()=>setUIStep(1)}> Back </button> <p> {selected_course} {YearTextDecoder(selected_year)} {selected_sem} Sem</p>
+                                <button onClick={() => setUIStep(1)}> Back </button> <p> {selected_course} {YearTextDecoder(selected_year)} {selected_sem} Sem</p>
                             </div>
                             <div className=" drop-shadow-sm border-neutral-300 mt-4 border rounded-md w-auto h-max p-4 pb-3">
                                 <div className="flex gap-2 mb-2">
@@ -233,7 +241,7 @@ export default function ModalSections() {
 
                                 <hr className="my-4" ></hr>
                                 <div className="w-full flex justify-end">
-                                    <Button text="Add Subject" onClick={AddSubject} isDisabled={!is_eligible_to_add_subject} widthFull />
+                                    <Button text="Add Subject" onClick={AddSubject} isDisabled={!is_eligible_to_add_subject} widthType="full" />
                                 </div>
                             </div>
                             <div className=" font-manrope-semibold text-sm my-1 text-neutral-500">
@@ -249,7 +257,7 @@ export default function ModalSections() {
                                 </div>
                                 <hr className="my-4"></hr>
                                 <div className="w-full flex justify-end">
-                                    <Button text="Finish" onClick={Finish} roundedFull isDisabled={subjects.length == 0} />
+                                    <Button text="Finish" onClick={Finish} roundedFull isDisabled={subjects.length == 0} widthType="medium" />
                                 </div>
                             </div>
                         </>
@@ -257,7 +265,7 @@ export default function ModalSections() {
             }
 
 
-        </ModalContainer>
+        </div>
     )
 }
 

@@ -57,7 +57,6 @@ function SidebarNav(props: { icon_name: string }) {
 
     const ChangePage = () => {
         ui_state.get.sidebar_active = props.icon_name as SidebarsType;
-        ui_state.get.background = false;
         ui_state.get.modal ="closed";
         ui_state.set();
     }

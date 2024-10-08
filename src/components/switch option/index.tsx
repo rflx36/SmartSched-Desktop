@@ -31,7 +31,7 @@ function SwitchActive(props: { text: string, style: string }) {
 
 function SwitchInactive(props: { text: string, style: string, switch: () => void }) {
     return (
-        <button onClick={props.switch} className={"h-8 p-[1px] m-[3px] w-max  grid place-content-center  " + props.style}>
+        <button onClick={props.switch} className={"h-8 p-[1px] m-[3px]  grid place-content-center  " + props.style}>
             <p className="font-manrope-semibold text-[16px] text-grey-400">{props.text}</p>
         </button>
     )
