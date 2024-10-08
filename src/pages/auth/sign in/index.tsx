@@ -31,12 +31,12 @@ export default function SignInPage() {
                 <input
                     disabled={signingIn}
                     className="outline-grey-400  font-manrope-bold text-grey-750 w-[365px] px-4 pt-[10px] h-[55px] bg-grey-200 rounded-[15px]"
-                    type="email" value={email} onChange={e => setEmail(e.currentTarget.value)} required />
+                    type="email" value={email} onChange={e => setEmail(e.currentTarget.value)}  />
                 <div className="h-[20px] w-full" />
                 <input
                     disabled={signingIn}
                     className="outline-grey-400  font-manrope-bold text-grey-750 w-[365px] px-4 pt-[10px] h-[55px] bg-grey-200 rounded-[15px]"
-                    type="password" value={password} onChange={e => setPassword(e.currentTarget.value)} required />
+                    type="password" value={password} onChange={e => setPassword(e.currentTarget.value)}  />
                 <div className="h-[20px] w-full" />
                 <div className="w-[365px] h-[50px] rounded-[15px] bg-grey-300 grid place-content-center relative">
                     <div className="w-[357px] absolute h-[42px] rounded-[12px] pointer-events-none z-10 border border-black/25  m-auto left-0 right-0 top-0 bottom-0" />
