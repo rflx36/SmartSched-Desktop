@@ -14,6 +14,10 @@ export default {
 
 
     extend: {
+      width:{
+        "input-full":"calc(100vw - 700px)",
+        "input-half":"calc(50vw - 350px)",
+      },
       transitionTimingFunction: {
         'bezier-in': "cubic-bezier(0.405, 1.070, 0.435, 0.780); "
       },

@@ -25,7 +25,7 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
-
+dist-electron/main.js
 
 *.suo
 *.ntvs*

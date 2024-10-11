@@ -24,5 +24,10 @@ export const DEFAULT_UI_STATE: UIStateType = {
     sidebar_active: "dashboard",
     sidebar_setup_step: 0,
     modal: "closed",
+    modal_action: null,
+    modal_message: "",
+    modal_submessage: "",
+    modal_edit_subjects: null,
+    modal_edit_instructors: null,
     dropdown_course: ""
 }

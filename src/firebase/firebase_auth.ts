@@ -1,4 +1,4 @@
-import { AuthErrorCodes, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { AuthErrorCodes, createUserWithEmailAndPassword,  signInWithEmailAndPassword, updateProfile } from "firebase/auth"
 import { auth } from "./firebase_config"
 
 
@@ -38,5 +38,6 @@ export const AuthSignIn = async (email: string, password: string) => {
 export const AuthSignOut = () => {
     return auth.signOut();
 }
+
 
 

@@ -1,8 +1,8 @@
 
 interface ICheckbox {
     name: string,
-    default: boolean,
-    onChange: (e: boolean) => void,
+    checked: boolean,
+    onClick: (e: boolean) => void,
     textStyle?: "base" | "italic"
 }
 
@@ -22,7 +22,11 @@ export default function Checkbox(props: ICheckbox) {
 
     return (
         <div className="flex w-max items-center gap-2">
-            <input className="accent-neutral-600" type="checkbox" defaultChecked={props.default} onChange={e => props.onChange(e.target.checked)} />
+            <input className="accent-neutral-600" type="checkbox"
+                checked={props.checked}
+                onClick={e => props.onClick(e.currentTarget.checked)}
+                onChange={()=>{}}
+            />
             <label className={TextStyle()} >{props.name}</label>
         </div>
     )

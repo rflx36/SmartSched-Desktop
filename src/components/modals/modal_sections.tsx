@@ -16,7 +16,15 @@ export default function ModalSections() {
     const sections = useSectionStore();
     const session = useSessionStore();
 
-    const [sectionAmount, setSectionAmount] = useState(1);
+    const Modifying =  ui_state.get.modal_edit_subjects
+    const default_course = (Modifying) ? { value: Modifying.course.code, label: Modifying.course.name } : undefined;
+
+    const default_sections = (Modifying) ? Modifying.sections : 1;
+    const default_subjects = (Modifying) ? Modifying.subjects : [];
+
+
+
+    const [sectionAmount, setSectionAmount] = useState(default_sections);
     const [UIStep, setUIStep] = useState(1);
 
 
@@ -37,12 +45,12 @@ export default function ModalSections() {
     const selected_year = sections_data.year_active;
     const selected_sem = sections_data.sem_active;
 
-    const [subjects, setSubjects] = useState<Array<Subject | SubjectHasLabLec>>([]);
+    const [subjects, setSubjects] = useState<Array<Subject | SubjectHasLabLec>>(default_subjects);
+    const data = sections.get.data.filter(x => x.year == sections.get.year_active).map(x => x.course);
+    const course_available = session.get.courses.filter(x => !data.includes(x.code))
+    const course_options = course_available.map((e) => ({ value: e.code, label: e.name }));
 
-
-    const course_options = session.get.courses.map((e) => ({ value: e.code, label: e.name }));
-
-    const [course, setCourse] = useState<IOptions | undefined>();
+    const [course, setCourse] = useState<IOptions | undefined>(default_course);
 
 
     const Proceed = () => {
@@ -52,6 +60,31 @@ export default function ModalSections() {
 
         ui_state.get.dropdown_course = course!.value;
         ui_state.set();
+    }
+
+    const EditSubject = (subject: Subject | SubjectHasLabLec) => {
+        setSubjectTitle(subject.title);
+        setSubjectCode(subject.code);
+        const is_leclab = (subject as Subject).total_hours == null;
+        setLecLab(is_leclab);
+        if (is_leclab) {
+            const sub = subject as SubjectHasLabLec;
+            setLecHours(sub.lec_total_hours);
+            setLecPartitionable(sub.lec_is_dividable);
+            setLabHours(sub.lab_total_hours);
+            setLabPartitionable(sub.lab_is_dividable);
+        }
+        else {
+            const sub = subject as Subject;
+            setBaseHours(sub.total_hours);
+            setBasePartitionable(sub.is_dividable);
+        }
+
+
+    }
+    const RemoveSubject = (subject: Subject | SubjectHasLabLec) => {
+        const sub = subjects.filter(x => x != subject);
+        setSubjects(sub);
     }
 
     const AddSubject = () => {
@@ -83,6 +116,7 @@ export default function ModalSections() {
     }
 
     const Finish = () => {
+        ui_state.get.modal_edit_subjects = null;
         ui_state.get.modal = "closed";
         ui_state.set();
         setUIStep(1);
@@ -93,7 +127,7 @@ export default function ModalSections() {
         const similar_data_index = current_data.findIndex(e => e.course == selected_course && e.year == sections!.get.year_active)
 
         if (similar_data_index != -1) {
-            current_data[similar_data_index] = { ...current_data[similar_data_index], subjects: subjects };
+            current_data[similar_data_index] = { ...current_data[similar_data_index], subjects: subjects, sections: sectionAmount };
 
             console.log("Modified");
         }
@@ -114,6 +148,8 @@ export default function ModalSections() {
 
     const Close = () => {
         ui_state.get.modal = "closed";
+
+        ui_state.get.modal_edit_subjects = null;
         ui_state.set();
     }
 
@@ -149,8 +185,12 @@ export default function ModalSections() {
                     ) :
                     (
                         <>
-                            <div className=" font-manrope-semibold text-sm mb-1 text-neutral-500 flex gap-2">
-                                <button onClick={() => setUIStep(1)}> Back </button> <p> {selected_course} {YearTextDecoder(selected_year)} {selected_sem} Sem</p>
+                            <div className=" font-manrope-semibold text-sm mb-1 text-neutral-500 flex items-center gap-2">
+                                <button className="text-grey-900 flex items-center rounded-full hover:bg-grey-200" onClick={() => setUIStep(1)}>
+                                    <img src="icons/icon-arrow.png" className="rotate-90" />
+                                    <p className="mr-3">Back</p>
+                                </button>
+                                <p> {selected_course} {YearTextDecoder(selected_year)} {selected_sem} Sem</p>
                             </div>
                             <div className=" drop-shadow-sm border-neutral-300 mt-4 border rounded-md w-auto h-max p-4 pb-3">
                                 <div className="flex gap-2 mb-2">
@@ -167,6 +207,7 @@ export default function ModalSections() {
                                     </div>
                                     <div className="flex-grow flex flex-col">
                                         <label className="font-manrope-semibold text-sm mb-1" >Subject Title</label>
+
                                         <input
                                             required
                                             type="text"
@@ -177,7 +218,7 @@ export default function ModalSections() {
                                     </div>
                                 </div>
 
-                                <Checkbox name="As lectures and lab sessions" default={lecLab} onChange={x => setLecLab(x)} textStyle="italic" />
+                                <Checkbox name="As lectures and lab sessions" checked={lecLab} onClick={x => setLecLab(x)} textStyle="italic" />
                                 <hr className="my-4" ></hr>
 
                                 {
@@ -196,7 +237,7 @@ export default function ModalSections() {
                                                     />
                                                 </div>
 
-                                                <Checkbox name="Is Partitionable" default={basePartitionable} onChange={x => setBasePartitionable(x)} textStyle="base" />
+                                                <Checkbox name="Is Partitionable" checked={basePartitionable} onClick={x => setBasePartitionable(x)} textStyle="base" />
                                             </div>
                                         ) : (
                                             <div className="flex justify-between">
@@ -215,7 +256,7 @@ export default function ModalSections() {
                                                         />
                                                     </div>
 
-                                                    <Checkbox name="Is Partitionable" default={lecPartitionable} onChange={x => setLecPartitionable(x)} textStyle="base" />
+                                                    <Checkbox name="Is Partitionable" checked={lecPartitionable} onClick={x => setLecPartitionable(x)} textStyle="base" />
                                                 </div>
                                                 <div className="w-auto flex flex-col gap-2 relative">
 
@@ -233,7 +274,7 @@ export default function ModalSections() {
                                                         />
                                                     </div>
 
-                                                    <Checkbox name="Is Partitionable" default={labPartitionable} onChange={x => setLabPartitionable(x)} textStyle="base" />
+                                                    <Checkbox name="Is Partitionable" checked={labPartitionable} onClick={x => setLabPartitionable(x)} textStyle="base" />
                                                 </div>
                                             </div>
                                         )
@@ -247,11 +288,11 @@ export default function ModalSections() {
                             <div className=" font-manrope-semibold text-sm my-1 text-neutral-500">
                                 <p>Subjects</p>
                             </div>
-                            <div className=" drop-shadow-sm border-neutral-300 border rounded-md w-[442px] h-max p-4 pb-3">
-                                <div className="min-h-20 flex flex-wrap gap-2">
+                            <div className=" drop-shadow-sm border-neutral-300 border rounded-md w-[442px] overflow-y-scroll p-4 pb-3">
+                                <div className="min-h-20  flex flex-wrap gap-2">
                                     {
                                         subjects.map((e, i) => {
-                                            return <Chip key={i} text={e.code} title={e.title} onRemove={() => { }} />
+                                            return <Chip key={i} text={e.code} title={e.title} onClick={() => EditSubject(e)} onRemove={() => RemoveSubject(e)} />
                                         })
                                     }
                                 </div>

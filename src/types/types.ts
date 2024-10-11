@@ -11,8 +11,9 @@ type m = h | '25' | '26' | '27' | '28' | '29' | '30'
 export type TimeType = `${h}:${m}`;
 export type YearType = 1 | 2 | 3 | 4;
 export type SemesterType = "1st" | "2nd";
-export type ModalsType = "rooms" | "courses" | "sections" | "instructors" | "closed";
-export type WeekType = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday";
+export type ModalsType = "rooms" | "courses" | "sections" | "instructors" | "closed" | "delete";
+export type ModalsActionType = "confirmed" | "cancelled" | null;
+export type WeekType = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 export type SidebarsType = "dashboard" | "schedules" | "setup" | "subjects" | "instructors";
 
 
@@ -72,6 +73,26 @@ export interface UIStateType {
     sidebar_active: SidebarsType,
     sidebar_setup_step: 0 | 1 | 2 | 3 | 4 | number;
     modal: ModalsType,
+    modal_action: ModalsActionType,
+    modal_message: string,
+    modal_submessage: string,
+    modal_edit_subjects: {
+        subjects: Array<Subject | SubjectHasLabLec>,
+        course: CourseType,
+        sections: number,
+    } | null,
+    modal_edit_instructors: {
+        first_name: string,
+        last_name: string,
+        fulltime: boolean,
+        preffered_subjects: Array<Subject | SubjectHasLabLec>,
+        monday?: TimeAvailabilityType,
+        tuesday?: TimeAvailabilityType,
+        wednesday?: TimeAvailabilityType,
+        thursday?: TimeAvailabilityType,
+        friday?: TimeAvailabilityType,
+        saturday?: TimeAvailabilityType,
+    } | null,
     dropdown_course: string
 }
 
@@ -88,13 +109,22 @@ export interface ClassSessionType {
     break_time_end: TimeType
 }
 
-
+interface TimeAvailabilityType {
+    time_start: TimeType,
+    time_end: TimeType,
+}
 
 export interface InstructorType {
     first_name: string,
     last_name: string,
     fulltime: boolean,
     preffered_subjects: Array<Subject | SubjectHasLabLec>,
+    monday?: TimeAvailabilityType,
+    tuesday?: TimeAvailabilityType,
+    wednesday?: TimeAvailabilityType,
+    thursday?: TimeAvailabilityType,
+    friday?: TimeAvailabilityType,
+    saturday?: TimeAvailabilityType,
     load: number
 }
 

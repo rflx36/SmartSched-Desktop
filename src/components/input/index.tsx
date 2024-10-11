@@ -4,6 +4,7 @@ import React from "react"
 interface InputType {
     type: "number" | "text" | "time",
     value: string | number,
+    id?: string,
     onChange: (x: any) => void,
     onBlur?: () => void,
     label?: string,
@@ -13,6 +14,7 @@ interface InputType {
     placeholder?: string,
     maxLength?: number,
     invalid?: string
+
 }
 
 
@@ -44,6 +46,7 @@ export default function Input(props: InputType) {
                 return "max-w-48";
         }
     }
+    
     const custom_style = `${size()}`;
 
     return (
@@ -54,11 +57,12 @@ export default function Input(props: InputType) {
                     <div className="flex gap-1">
 
                         <label className="font-manrope-semibold text-sm mb-1" >{props.label}</label>
-                        {(props.invalid != null)&&(<label className="text-red-400 font-manrope-bold text-[12px] mb-1"> *{props.invalid}</label>)}
+                        {(props.invalid != null) && (<label className="text-red-400 font-manrope-bold text-[12px] mb-1"> *{props.invalid}</label>)}
                     </div>
                 )
             }
             <input
+                id={props.id}
                 type={props.type}
                 value={props.value}
                 className={custom_style + " h-9 font-manrope-regular    px-3 py-[4px] max-w-36 tabular-nums outline-1 focus:outline-2 focus:outline-neutral-400 outline  rounded-[4px] outline-neutral-300 bg-neutral-200/50 "}

@@ -79,11 +79,11 @@ function SetupProgressContainer() {
 
 
 
-export function SetupProceedButton(props: { valid: boolean, on_press: () => void }) {
+export function SetupProceedButton(props: { valid: boolean, on_press?: () => void }) {
     const ui_state = useUIStore();
 
     const ProgressActionNext = () => {
-        props.on_press();
+        props.on_press
         ui_state.get.sidebar_setup_step = ui_state.get.sidebar_setup_step + 1;
         ui_state.set();
     }
@@ -91,7 +91,7 @@ export function SetupProceedButton(props: { valid: boolean, on_press: () => void
 
     if (props.valid) {
         return (
-            <div className="w-[1008px] h-full absolute top-0 pointer-events-none">
+            <div className="min-w-[1008px] w-input-full h-full absolute top-0 pointer-events-none">
                 <button onClick={ProgressActionNext} className="pointer-events-auto z-10 w-[400px] absolute right-0 bottom-2  h-[40px] bg-grey-750 border border-grey-900 rounded-md hover:bg-grey-600" >
                     <p className="text-grey-100 font-manrope-bold text-[18px]">Proceed</p>
                 </button>
@@ -101,7 +101,7 @@ export function SetupProceedButton(props: { valid: boolean, on_press: () => void
     }
     else {
         return (
-            <div className="w-[1008px] h-full  absolute top-0 pointer-events-none">
+            <div className="min-w-[1008px] w-input-full h-full  absolute top-0 pointer-events-none">
                 <button className="cursor-not-allowed z-10 w-[400px] pointer-events-auto opacity-25 absolute right-0 bottom-2  h-[40px] bg-grey-750 border border-grey-900 rounded-md " >
                     <p className="text-grey-100 font-manrope-bold text-[18px]">Proceed</p>
                 </button>

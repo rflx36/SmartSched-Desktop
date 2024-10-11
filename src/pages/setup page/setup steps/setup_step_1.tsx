@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SwitchOption from "../../../components/switch option";
 import Button from "../../../components/button";
 import { SetupProceedButton } from "..";
@@ -6,18 +6,19 @@ import { CurrentSemester, Subject, SubjectDetailType, SubjectHasLabLec, YearType
 import { useUIStore } from "../../../stores/ui_store";
 import { useSectionStore } from "../../../stores/section_store";
 import Modifier from "../../../components/modifier";
+import { useSessionStore } from "../../../stores/session_store";
 
 
 
 export default function SetupStep_1() {
     const ui_state = useUIStore();
     const sections = useSectionStore();
+    const session = useSessionStore();
     const [activeYearTab, setActiveYearTab] = useState(sections.get.year_active as number);
     const [sem, setSem] = useState((sections.get.sem_active == "1st") ? 0 : 1);
 
     const [docked, setDocked] = useState<CurrentSemester | null>(null);
-
-
+    const [selection, setSelection] = useState<CurrentSemester | null>(null);
     const data = sections.get.data.filter(x => x.year == activeYearTab);
     const SetSubject = () => {
         ui_state.get.modal = "sections";
@@ -90,12 +91,52 @@ export default function SetupStep_1() {
 
     }
 
+
+    const EditSelection = (selection: CurrentSemester) => {
+        const course_ = session.get.courses.filter(x => x.code == selection.course);
+        ui_state.get.modal_edit_subjects = { subjects: selection.subjects, course: course_[0], sections: selection.sections };
+        ui_state.get.modal = "sections";
+        ui_state.set();
+    }
+
+    const DeleteSelection = (selection: CurrentSemester) => {
+        setSelection(selection);
+
+        const section_initial = selection.year + String.fromCharCode(96 + 1).toUpperCase();
+        const section_last = selection.year + String.fromCharCode(96 + (selection.sections)).toUpperCase();
+        const section_text = (selection.sections > 1) ? section_initial + " - " + section_last : section_initial;
+
+
+
+        ui_state.get.modal = "delete";
+        ui_state.get.modal_message = "Confirm Delete " + selection.course + " (" + section_text + ")?";
+        ui_state.get.modal_submessage = "";
+        ui_state.set();
+    }
+
+
+    useEffect(()=>{
+        if (ui_state.get.modal_action == "confirmed" && selection != null) {
+            const temp_data = sections.get.data.filter(x => x != selection);
+    
+            sections.get.data = temp_data;
+            ui_state.get.modal_action = null;
+            sections.set();
+            ui_state.set();
+        }
+        else if (ui_state.get.modal_action == "cancelled") {
+            ui_state.get.modal_action = null;
+            ui_state.set();
+    
+        }
+    },[ui_state.get.modal_action])
+
     return (
         <>
             <SetupProceedButton valid={sections.get.data.length > 0} on_press={() => { }} />
             <p className="ml-1 font-manrope-semibold text-grey-900 text-[20px]">Subjects</p>
             <div className="w-max h-max border shadow-inner border-baseline-border-outline bg-baseline-border-base rounded-lg">
-                <div className="m-1 w-[1000px]">
+                <div className="m-1 min-w-[1000px] w-input-full ">
                     <div className=" bg-neutral-300 mx-1 mt-2 z-10 overflow-hidden border-b-0 rounded-t-lg w-max  font-manrope-semibold text-sm text-center ">
                         <SetupYearTab isActive={1 == activeYearTab} year="1st" onClick={() => SwitchYear(1)} />
                         <SetupYearTab isActive={2 == activeYearTab} year="2nd" onClick={() => SwitchYear(2)} />
@@ -109,10 +150,12 @@ export default function SetupStep_1() {
                         {(docked != null) ?
                             (
 
-                                <div className="p-2 w-full z-10 h-full e ">
-                                    <div className="border h-full   border-baseline-outline m-1 flex rounded-lg flex-col">
-                                        <div onClick={() => setDocked(null)} className="hover:bg-grey-50 cursor-pointer rounded-t-lg h-[62px] w-full flex items-center justify-between">
-                                            <div className="w-max h-full flex items-center">
+                                <div className="p-2 w-full z-10 h-full ">
+                                    <div className="border h-full  border-baseline-outline m-1 flex rounded-lg flex-col">
+                                        <div className="hover:bg-grey-50 relative rounded-t-lg h-[62px] w-full flex items-center justify-between">
+                                            <div onClick={() => setDocked(null)} className="w-[calc(100%-135px)] cursor-pointer h-full  absolute" />
+                                            <div onClick={() => setDocked(null)} className="w-[50px] cursor-pointer h-full absolute right-0 z-20" />
+                                            <div className="w-max h-full flex items-center ">
 
                                                 <div className="w-[90px] h-full flex items-center mx-4 ">
                                                     <p className="font-manrope-semibold text-[20px] text-grey-750" >{docked.course}</p>
@@ -124,12 +167,14 @@ export default function SetupStep_1() {
                                                     <p className="m-1 font-manrope-medium text-grey-400 text-[12px]">({docked.sections} sections)</p>
                                                 </div>
                                             </div>
-                                            <div className="w-[135px]  h-full flex items-center justify-end">
-                                                <Modifier edit={() => { }} delete={() => { }} />
+                                            <div className="w-[135px] z-10  h-full flex items-center justify-end">
+                                                <Modifier edit={() => EditSelection(docked)} delete={() => DeleteSelection(docked)} />
+
+
                                                 <img className="mx-4 rotate-180" src="icons/icon-arrow.png" />
                                             </div>
                                         </div>
-                                        <div className="h-10 w-full flex gap-2  font-manrope-bold text-[14px] text-grey-900 bg-baseline-border-base border-y border-baseline-outline">
+                                        <div className="h-10 w-full flex gap-2  font-manrope-bold text-[14px] justify-between text-grey-900 bg-baseline-border-base border-y border-baseline-outline">
                                             <div className="w-[300px] ml-6 flex items-center">
                                                 <p>Subject Description</p>
 
@@ -148,10 +193,10 @@ export default function SetupStep_1() {
                                             </div>
 
                                         </div>
-                                        <div className="h-[290px] w-full mt-[2px] overflow-y-scroll">
+                                        <div className="min-h-[290px] h-[calc(100vh-460px)] w-full mt-[2px] overflow-y-scroll">
                                             {(GetDockedSubjects != null) && GetDockedSubjects()?.map((x, i) => {
                                                 return (
-                                                    <div key={i} className="h-12 w-full flex gap-2 font-manrope-semibold text-grey-500 text-[14px] border-b border-baseline-outline">
+                                                    <div key={i} className="h-12 w-full flex gap-2 font-manrope-semibold justify-between     text-grey-500 text-[14px] border-b border-baseline-outline">
                                                         <div className="w-[300px] ml-6 flex items-center">
                                                             <p>{x.description}</p>
 
@@ -163,7 +208,7 @@ export default function SetupStep_1() {
                                                             <p>{x.hours_allocated}</p>
                                                         </div>
                                                         <div className="w-[125px] flex items-center justify-center">
-                                                            <p>{(x.is_partitionable)?"Yes":"No"}</p>
+                                                            <p>{(x.is_partitionable) ? "Yes" : "No"}</p>
                                                         </div>
                                                         <div className="w-[125px] flex items-center ">
                                                             <p>{x.type}</p>
@@ -177,7 +222,7 @@ export default function SetupStep_1() {
                             ) :
                             (
                                 <div className="p-2 w-full flex flex-col items-start justify-between h-full z-10">
-                                    <div className="  w-full min-h-[350px]">
+                                    <div className="  w-full min-h-[350px] h-[calc(100vh-400px)]">
 
 
                                         {
@@ -188,7 +233,10 @@ export default function SetupStep_1() {
                                                         const section_last = x.year + String.fromCharCode(96 + (x.sections)).toUpperCase();
                                                         const section_text = (x.sections > 1) ? section_initial + " - " + section_last : section_initial;
                                                         return (
-                                                            <div key={i} onClick={() => setDocked(x)} className=" hover:bg-grey-50 cursor-pointer border-baseline-outline border w-[calc(100%-8px)] m-1 h-16 rounded-lg flex items-center justify-between">
+                                                            <div key={i} className=" hover:bg-grey-50  relative border-baseline-outline border w-[calc(100%-8px)] m-1 h-16 rounded-lg flex items-center justify-between">
+                                                                <div onClick={() => setDocked(x)} className="w-[calc(100%-135px)] cursor-pointer h-full  absolute" />
+                                                                <div onClick={() => setDocked(x)} className="w-[50px] cursor-pointer h-full absolute right-0" />
+
                                                                 <div className="w-max h-full flex items-center">
                                                                     <div className="w-[90px] h-full flex items-center mx-4 ">
                                                                         <p className="font-manrope-semibold text-[20px] text-grey-750" >{x.course}</p>
@@ -210,8 +258,8 @@ export default function SetupStep_1() {
                                                                         })}
                                                                     </div>
                                                                 </div>
-                                                                <div className="w-[135px]  h-full flex items-center justify-end">
-                                                                    <Modifier edit={() => { }} delete={() => { }} />
+                                                                <div className="w-[135px]  h-full flex items-center justify-end ">
+                                                                    <Modifier edit={() => EditSelection(x)} delete={() => DeleteSelection(x)} />
                                                                     <img className="mx-4" src="icons/icon-arrow.png" />
                                                                 </div>
                                                             </div>
@@ -254,7 +302,7 @@ function SetupYearTab(props: { isActive: boolean, year: string, onClick: () => v
             before:w-full before:bg-neutral-100 before:h-full before:absolute before:content[''] 
             before:left-0 before:top-0 before:rounded-t-lg before:z-[-1] 
             before:border before:border-neutral-300 before:border-b-0">
-                <p >{props.year} year</p>
+                <p >{props.year} years</p>
             </button>
         ) :
         (
