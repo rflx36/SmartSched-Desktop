@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SetupProceedButton } from "..";
 import Button from "../../../components/button";
 import Modifier from "../../../components/modifier";
@@ -9,7 +9,6 @@ import { InstructorType } from "../../../types/types";
 
 export default function SetupStep_2() {
     const ui_state = useUIStore();
-    const sections = useSectionStore();
     const instructors = useInstructorStore();
     const [selection, setSelection] = useState<InstructorType | null>(null);
 
@@ -18,10 +17,43 @@ export default function SetupStep_2() {
         ui_state.set();
     }
 
+
+    const EditSelection = (selection: InstructorType) => {
+        ui_state.get.modal_edit_instructors = selection;
+        ui_state.get.modal = "instructors";
+        ui_state.set();
+    }
+
+    const DeleteSelection = (selection: InstructorType) => {
+        setSelection(selection);
+
+        ui_state.get.modal = "delete";
+        ui_state.get.modal_message = "Confirm Delete Instructor " + selection.first_name + " " + selection.last_name + " ?";
+        ui_state.get.modal_submessage = "";
+        ui_state.set();
+    }
+
+
+    useEffect(() => {
+        if (ui_state.get.modal_action == "confirmed" && selection != null) {
+            const temp_data = instructors.get.instructors.filter(x => x != selection);
+            instructors.get.instructors = temp_data;
+            instructors.set();
+            ui_state.get.modal_action = null;
+            ui_state.set();
+        }
+        else if (ui_state.get.modal_action == "cancelled") {
+            ui_state.get.modal_action = null;
+            ui_state.set();
+
+        }
+    }, [ui_state.get.modal_action])
+
+
     return (
         <>
 
-            <SetupProceedButton valid={sections.get.data.length > 0} on_press={() => { }} />
+            <SetupProceedButton valid={instructors.get.instructors.length > 0} />
             <p className="ml-1 font-manrope-semibold text-grey-900 text-[20px]">Instructors</p>
 
             <div className=" w-max h-max border shadow-inner border-baseline-border-outline bg-baseline-border-base rounded-lg">
@@ -48,8 +80,11 @@ export default function SetupStep_2() {
                                 </div>
 
                             </div>
-                            <div className="w-[calc(100%-16px)] mx-2 min-h-[344px] h-[calc(100vh-406px)]  border border-baseline-outline rounded-lg">
+                            <div className="w-[calc(100%-16px)] mx-2 min-h-[344px] h-[calc(100vh-406px)] overflow-y-scroll border border-baseline-outline rounded-lg">
                                 {instructors.get.instructors.map((x, i) => {
+                                    const preffered_subject_1 = x.preffered_subjects[0];
+                                    const preffered_subject_2 = x.preffered_subjects[1];
+                                    const preffered_subjects_remaining = ((x.preffered_subjects.length - 3) > 0) ? (x.preffered_subjects.length - 3) : null;
                                     return (
                                         <div key={i} className="w-full h-[50px] flex justify-between items-center border-b border-baseline-outline font-manrope-semibold text-[14px] text-grey-500">
                                             <div className="w-[calc(100%-86px)] h-full flex justify-between items-center ">
@@ -65,14 +100,28 @@ export default function SetupStep_2() {
                                                     <AvailabilityChip text="S" is_available={x.saturday != undefined} />
                                                 </div>
                                                 <div className="w-[100px] grid place-content-center ">
-                                                    <p >{(x.fulltime) ? "fulltime" : "tempo"}</p>
+                                                    <p >{(x.fulltime) ? "fulltime" : "parttime"}</p>
                                                 </div>
-                                                <div className="w-[300px]">
-
+                                                <div className="w-[300px] flex gap-2">
+                                                    {preffered_subject_1 != null && (
+                                                        <div className="h-[23px] w-max px-4 bg-grey-200 rounded-full flex items-center" title={preffered_subject_1.title}>
+                                                            <p className="font-manrope-medium text-[12px] text-grey-500" >{preffered_subject_1.code.toLocaleUpperCase()}</p>
+                                                        </div>
+                                                    )}
+                                                    {preffered_subject_2 != null && (
+                                                        <div className="h-[23px] w-max px-4 bg-grey-200 rounded-full flex items-center" title={preffered_subject_2.title}>
+                                                            <p className="font-manrope-medium text-[12px] text-grey-500" >{preffered_subject_2.code.toLocaleUpperCase()}</p>
+                                                        </div>
+                                                    )}
+                                                    {preffered_subjects_remaining != null && (
+                                                        <div className="h-[23px] w-max px-4 bg-grey-200 rounded-full flex items-center" >
+                                                            <p className="font-manrope-medium text-[12px] text-grey-500" >and {preffered_subjects_remaining} more...</p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="w-[86px] h-full flex items-center">
-                                                <Modifier edit={() => { }} delete={() => { }} />
+                                                <Modifier edit={() => EditSelection(x)} delete={() => DeleteSelection(x)} />
                                             </div>
                                         </div>
                                     )

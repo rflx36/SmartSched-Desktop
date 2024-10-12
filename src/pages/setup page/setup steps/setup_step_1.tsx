@@ -7,6 +7,7 @@ import { useUIStore } from "../../../stores/ui_store";
 import { useSectionStore } from "../../../stores/section_store";
 import Modifier from "../../../components/modifier";
 import { useSessionStore } from "../../../stores/session_store";
+import { useInstructorStore } from "../../../stores/instructor_store";
 
 
 
@@ -14,6 +15,7 @@ export default function SetupStep_1() {
     const ui_state = useUIStore();
     const sections = useSectionStore();
     const session = useSessionStore();
+    const instructors = useInstructorStore();
     const [activeYearTab, setActiveYearTab] = useState(sections.get.year_active as number);
     const [sem, setSem] = useState((sections.get.sem_active == "1st") ? 0 : 1);
 
@@ -94,6 +96,9 @@ export default function SetupStep_1() {
 
     const EditSelection = (selection: CurrentSemester) => {
         const course_ = session.get.courses.filter(x => x.code == selection.course);
+
+        // instructors.get.instructors.map(x=> x.preffered_subjects)
+
         ui_state.get.modal_edit_subjects = { subjects: selection.subjects, course: course_[0], sections: selection.sections };
         ui_state.get.modal = "sections";
         ui_state.set();
@@ -115,10 +120,20 @@ export default function SetupStep_1() {
     }
 
 
-    useEffect(()=>{
+    useEffect(() => {
         if (ui_state.get.modal_action == "confirmed" && selection != null) {
             const temp_data = sections.get.data.filter(x => x != selection);
-    
+
+
+
+            if (instructors.get.instructors.length > 0) {
+                const modified_data = instructors.get.instructors.map(x => {
+                    const preffered_subjects = x.preffered_subjects.filter(i => !selection.subjects.includes(i));
+                    return { ...x, preffered_subjects: preffered_subjects };
+                })
+                instructors.get.instructors = modified_data;
+                instructors.set();
+            }
             sections.get.data = temp_data;
             ui_state.get.modal_action = null;
             sections.set();
@@ -127,9 +142,9 @@ export default function SetupStep_1() {
         else if (ui_state.get.modal_action == "cancelled") {
             ui_state.get.modal_action = null;
             ui_state.set();
-    
+
         }
-    },[ui_state.get.modal_action])
+    }, [ui_state.get.modal_action])
 
     return (
         <>

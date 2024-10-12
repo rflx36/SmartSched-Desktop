@@ -9,14 +9,16 @@ import { useUIStore } from "../../stores/ui_store";
 import Dropdown, { IOptions } from "../dropdown";
 import { useSessionStore } from "../../stores/session_store";
 import Input from "../input";
+import { useInstructorStore } from "../../stores/instructor_store";
 
 
 export default function ModalSections() {
     const ui_state = useUIStore();
     const sections = useSectionStore();
     const session = useSessionStore();
+    const instructors = useInstructorStore();
 
-    const Modifying =  ui_state.get.modal_edit_subjects
+    const Modifying = ui_state.get.modal_edit_subjects
     const default_course = (Modifying) ? { value: Modifying.course.code, label: Modifying.course.name } : undefined;
 
     const default_sections = (Modifying) ? Modifying.sections : 1;
@@ -26,6 +28,7 @@ export default function ModalSections() {
 
     const [sectionAmount, setSectionAmount] = useState(default_sections);
     const [UIStep, setUIStep] = useState(1);
+    const [selection, setSelection] = useState<Subject | SubjectHasLabLec | null>(null);
 
 
     const [subjectTitle, setSubjectTitle] = useState("");
@@ -79,13 +82,82 @@ export default function ModalSections() {
             setBaseHours(sub.total_hours);
             setBasePartitionable(sub.is_dividable);
         }
-
+        setSelection(subject);
 
     }
     const RemoveSubject = (subject: Subject | SubjectHasLabLec) => {
         const sub = subjects.filter(x => x != subject);
+        CancelEdit();
         setSubjects(sub);
+        if (instructors.get.instructors.length > 0) {
+            const modified_data = instructors.get.instructors.map(x => {
+                const preffered_subjects = x.preffered_subjects.filter(i => i != subject);
+                return { ...x, preffered_subjects: preffered_subjects };
+            })
+            instructors.get.instructors = modified_data;
+            instructors.set();
+
+        }
     }
+    const CancelEdit = () => {
+
+        setSubjectTitle("");
+        setSubjectCode("");
+        setSelection(null);
+
+    }
+    const SaveSubject = () => {
+        const subject_index = subjects.findIndex(x => x == selection);
+        const modified_subject = subjects;
+
+        if (lecLab) {
+            const subject_data = {
+                title: subjectTitle,
+                code: subjectCode,
+                lab_total_hours: labHours,
+                lab_is_dividable: labPartitionable,
+                lec_total_hours: lecHours,
+                lec_is_dividable: lecPartitionable,
+
+            }
+
+            modified_subject[subject_index] = subject_data;
+        }
+        else {
+            const subject_data = {
+                title: subjectTitle,
+                code: subjectCode,
+                total_hours: baseHours,
+                is_dividable: basePartitionable,
+
+            }
+
+            modified_subject[subject_index] = subject_data;
+        }
+
+        if (instructors.get.instructors.length > 0) {
+
+            const amount = instructors.get.instructors.map(x => x.preffered_subjects.filter(i => i == selection));
+            if (amount.length == 1) {
+                const modified_data = instructors.get.instructors.map(x => {
+                    const preffered_index = x.preffered_subjects.findIndex(i => i == selection);
+                    const preffered_modified = x.preffered_subjects;
+                    preffered_modified[preffered_index] = modified_subject[subject_index];
+                    return { ...x, preffered_subjects: preffered_modified };
+                })
+                instructors.get.instructors = modified_data;
+                instructors.set();
+            }
+
+
+        }
+
+        setSubjects(modified_subject);
+        setSubjectTitle("");
+        setSubjectCode("");
+        setSelection(null);
+    }
+
 
     const AddSubject = () => {
 
@@ -196,13 +268,14 @@ export default function ModalSections() {
                                 <div className="flex gap-2 mb-2">
 
                                     <div className="flex flex-col">
+
                                         <label className="font-manrope-semibold text-sm mb-1" >Subject Code</label>
                                         <input
                                             required
                                             type="text"
                                             value={subjectCode}
                                             className="h-9 font-manrope-regular   px-3 py-[4px] max-w-36 tabular-nums outline-1 focus:outline-2 focus:outline-neutral-400 outline  rounded-[4px] outline-neutral-300 bg-neutral-200/50 "
-                                            onChange={x => setSubjectCode(x.currentTarget.value)}
+                                            onChange={x => setSubjectCode(x.currentTarget.value.toLocaleUpperCase())}
                                         />
                                     </div>
                                     <div className="flex-grow flex flex-col">
@@ -281,8 +354,20 @@ export default function ModalSections() {
                                 }
 
                                 <hr className="my-4" ></hr>
-                                <div className="w-full flex justify-end">
-                                    <Button text="Add Subject" onClick={AddSubject} isDisabled={!is_eligible_to_add_subject} widthType="full" />
+                                <div className="w-full flex gap-3 justify-end">
+                                    {
+                                        (selection == null) ?
+                                            <Button text="Add Subject" onClick={AddSubject} isDisabled={!is_eligible_to_add_subject} widthType="full" />
+                                            :
+                                            (
+                                                <>
+                                                    <Button text="Cancel" onClick={CancelEdit} widthType="medium" />
+                                                    <Button text="Save Changes" onClick={SaveSubject} isDisabled={!is_eligible_to_add_subject} widthType="full" />
+                                                </>
+
+                                            )
+
+                                    }
                                 </div>
                             </div>
                             <div className=" font-manrope-semibold text-sm my-1 text-neutral-500">
@@ -292,7 +377,13 @@ export default function ModalSections() {
                                 <div className="min-h-20  flex flex-wrap gap-2">
                                     {
                                         subjects.map((e, i) => {
-                                            return <Chip key={i} text={e.code} title={e.title} onClick={() => EditSubject(e)} onRemove={() => RemoveSubject(e)} />
+                                            if (e == selection) {
+                                                return <Chip style="highlighted" key={i} text={e.code} title={e.title} onClick={() => EditSubject(e)} onRemove={() => RemoveSubject(e)} />
+                                            }
+                                            else {
+                                                return <Chip key={i} text={e.code} title={e.title} onClick={() => EditSubject(e)} onRemove={() => RemoveSubject(e)} />
+
+                                            }
                                         })
                                     }
                                 </div>

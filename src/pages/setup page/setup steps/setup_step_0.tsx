@@ -11,6 +11,7 @@ import Modifier from "../../../components/modifier";
 import { SetupProceedButton } from "..";
 import { useSessionStore } from "../../../stores/session_store";
 import { useSectionStore } from "../../../stores/section_store";
+import { useInstructorStore } from "../../../stores/instructor_store";
 
 
 
@@ -19,7 +20,7 @@ export default function SetupStep_0() {
     const ui_state = useUIStore();
     const class_session = useSessionStore();
     const class_section = useSectionStore();
-
+    const class_instructors = useInstructorStore();
     const [timeStart, setTimeStart] = useState<TimeType>(DEFAULT_CLASS_SESSIONS.time_start);
     const [timeEnd, setTimeEnd] = useState<TimeType>(DEFAULT_CLASS_SESSIONS.time_end);
     const [breakTimeStart, setBreakTimeStart] = useState<TimeType>(DEFAULT_CLASS_SESSIONS.break_time_start);
@@ -248,9 +249,22 @@ export default function SetupStep_0() {
 
 
             const modified_data = class_section.get.data.filter(x => x.course != selection.code)
+            const course_subjects = class_section.get.data.filter(x => x.course == selection.code);
             class_section.get.course_active = "";
             class_section.get.data = modified_data;
             class_section.set();
+
+            if (class_instructors.get.instructors.length > 0) {
+                const course_subjects_mapped = course_subjects.map(x => x.subjects);
+                const course_subjects_wrapped = [...course_subjects_mapped.map(x => x)].flat();
+
+                const modified_instructors = class_instructors.get.instructors.map(x => {
+                    return { ...x, preffered_subjects: x.preffered_subjects.filter(i => !course_subjects_wrapped.includes(i)) };
+                })
+                class_instructors.get.instructors = modified_instructors;
+                class_instructors.set();
+            }
+
 
             setCourses(courses.filter((x) => x != selection));
             ui_state.get.modal_action = null;

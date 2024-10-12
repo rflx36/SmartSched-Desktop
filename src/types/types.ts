@@ -81,18 +81,7 @@ export interface UIStateType {
         course: CourseType,
         sections: number,
     } | null,
-    modal_edit_instructors: {
-        first_name: string,
-        last_name: string,
-        fulltime: boolean,
-        preffered_subjects: Array<Subject | SubjectHasLabLec>,
-        monday?: TimeAvailabilityType,
-        tuesday?: TimeAvailabilityType,
-        wednesday?: TimeAvailabilityType,
-        thursday?: TimeAvailabilityType,
-        friday?: TimeAvailabilityType,
-        saturday?: TimeAvailabilityType,
-    } | null,
+    modal_edit_instructors: InstructorType | null,
     dropdown_course: string
 }
 
@@ -125,7 +114,7 @@ export interface InstructorType {
     thursday?: TimeAvailabilityType,
     friday?: TimeAvailabilityType,
     saturday?: TimeAvailabilityType,
-    load: number
+    load?: number
 }
 
 export interface ClassInstructorType {

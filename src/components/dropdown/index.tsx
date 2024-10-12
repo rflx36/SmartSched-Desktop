@@ -38,7 +38,7 @@ export default function Dropdown(props: IDropdown) {
             >
                 <span className="flex-grow ">{(props.value != undefined)&&`(${props.value?.value})`} {props.value?.label}</span>
                 <div className={(isOpen ? "border-b-neutral-400 translate-y-[-25%]" : "border-t-neutral-400 translate-y-[25%]") + " border-[6px] border-transparent translate-x-0 "}></div>
-                <ul className={(isOpen ? "block" : " hidden") + "  w-full bg-neutral-100 shadow-sm z-50 absolute left-0 top-[calc(100%+0.25em)] m-0 p-0 list-none  border border-neutral-400/70 rounded-lg"}>
+                <ul className={(isOpen ? "block" : " hidden") + "  w-full bg-neutral-100  max-h-[calc(50vh)] overflow-y-scroll shadow-sm z-50 absolute left-0 top-[calc(100%+0.25em)] m-0 p-0 list-none  border border-neutral-400/70 rounded-lg"}>
                     
                     {
                         props.options.map((x, i) => (

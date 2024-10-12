@@ -32,7 +32,7 @@ export default function Button(props: IButton) {
 
     return (
         <button
-            className={(custom_style + " m-1 bg-neutral-90 border border-neutral-300 h-max outline-neutral-200/80 outline-[4px]  px-4 py-1 outline   text-neutral-500  ease-out duration-100")}
+            className={(custom_style + " m-1 bg-neutral-90 border border-neutral-300 h-max outline-neutral-200/80 outline-[4px]  px-4 py-1 outline   text-neutral-500  ease-out ")}
             disabled={!!props.isDisabled}
             onClick={(e) => props.onClick(e)}>
             {props.text}

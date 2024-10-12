@@ -11,8 +11,7 @@ import ChipContainer from "../chip/container";
 import Chip from "../chip";
 import { useInstructorStore } from "../../stores/instructor_store";
 import { useSessionStore } from "../../stores/session_store";
-
-
+import { ConvertTimeToValue } from "../../core/utils/time_converter";
 
 
 
@@ -25,42 +24,70 @@ export default function ModalInstructors() {
     const session = useSessionStore();
     const instructors = useInstructorStore();
 
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [isFullTime, setIsFullTime] = useState(true);
+    const default_time_start = session.get.time_start;
+    const default_time_end = session.get.time_end;
+
+    const Modifying = ui_state.get.modal_edit_instructors;
+    const default_first_name = (Modifying) ? Modifying.first_name : "";
+    const default_last_name = (Modifying) ? Modifying.last_name : "";
+    const default_is_full_time = (Modifying) ? Modifying.fulltime : true;
+    const default_subjects = (Modifying) ? Modifying.preffered_subjects.map(x => x.code) : [];
+
+    const default_use_monday = true;
+    const default_use_tuesday = (Modifying?.tuesday) ? true : false;
+    const default_use_wednesday = (Modifying?.wednesday) ? true : false;
+    const default_use_thursday = (Modifying?.thursday) ? true : false;
+    const default_use_friday = (Modifying?.friday) ? true : false;
+    const default_use_saturday = (Modifying?.saturday) ? true : false;
+
+    const default_monday_start = (Modifying?.monday) ? Modifying.monday.time_start : default_time_start;
+    const default_monday_end = (Modifying?.monday) ? Modifying.monday.time_end : default_time_end;
+    const default_tuesday_start = (Modifying?.tuesday) ? Modifying.tuesday.time_start : default_time_start;
+    const default_tuesday_end = (Modifying?.tuesday) ? Modifying.tuesday.time_end : default_time_end;
+    const default_wednesday_start = (Modifying?.wednesday) ? Modifying.wednesday.time_start : default_time_start;
+    const default_wednesday_end = (Modifying?.wednesday) ? Modifying.wednesday.time_end : default_time_end;
+    const default_thursday_start = (Modifying?.thursday) ? Modifying.thursday.time_start : default_time_start;
+    const default_thursday_end = (Modifying?.thursday) ? Modifying.thursday.time_end : default_time_end;
+    const default_friday_start = (Modifying?.friday) ? Modifying.friday.time_start : default_time_start;
+    const default_friday_end = (Modifying?.friday) ? Modifying.friday.time_end : default_time_end;
+    const default_saturday_start = (Modifying?.saturday) ? Modifying.saturday.time_start : default_time_start;
+    const default_saturday_end = (Modifying?.saturday) ? Modifying.saturday.time_end : default_time_end;
+
+
+    const [firstName, setFirstName] = useState(default_first_name);
+    const [lastName, setLastName] = useState(default_last_name);
+    const [isFullTime, setIsFullTime] = useState(default_is_full_time);
     const [currentSubjectSelection, setCurrentSubjectSelection] = useState<IOptions | undefined>();
     const [UIStep, setUIStep] = useState(1);
     //({ value: e.code, label: e.name })
 
-    const [useMonday, setUseMonday] = useState(true);
-    const [useTuesday, setUseTuesday] = useState(false);
-    const [useWednesday, setUseWednesday] = useState(false);
-    const [useThursday, setUseThursday] = useState(false);
-    const [useFriday, setUseFriday] = useState(false);
-    const [useSaturday, setUseSaturday] = useState(false);
+    const [useMonday, setUseMonday] = useState(default_use_monday);
+    const [useTuesday, setUseTuesday] = useState(default_use_tuesday);
+    const [useWednesday, setUseWednesday] = useState(default_use_wednesday);
+    const [useThursday, setUseThursday] = useState(default_use_thursday);
+    const [useFriday, setUseFriday] = useState(default_use_friday);
+    const [useSaturday, setUseSaturday] = useState(default_use_saturday);
 
-    const default_time_start = session.get.time_start;
-    const default_time_end = session.get.time_end;
 
-    const [mondayStart, setMondayStart] = useState<TimeType>(default_time_start);
-    const [mondayEnd, setMondayEnd] = useState<TimeType>(default_time_end);
+    const [mondayStart, setMondayStart] = useState<TimeType>(default_monday_start);
+    const [mondayEnd, setMondayEnd] = useState<TimeType>(default_monday_end);
 
-    const [tuesdayStart, setTuesdayStart] = useState<TimeType>(default_time_start);
-    const [tuesdayEnd, setTuesdayEnd] = useState<TimeType>(default_time_end);
+    const [tuesdayStart, setTuesdayStart] = useState<TimeType>(default_tuesday_start);
+    const [tuesdayEnd, setTuesdayEnd] = useState<TimeType>(default_tuesday_end);
 
-    const [wednesdayStart, setWednesdayStart] = useState<TimeType>(default_time_start);
-    const [wednesdayEnd, setWednesdayEnd] = useState<TimeType>(default_time_end);
+    const [wednesdayStart, setWednesdayStart] = useState<TimeType>(default_wednesday_start);
+    const [wednesdayEnd, setWednesdayEnd] = useState<TimeType>(default_wednesday_end);
 
-    const [thursdayStart, setThursdayStart] = useState<TimeType>(default_time_start);
-    const [thursdayEnd, setThursdayEnd] = useState<TimeType>(default_time_end);
+    const [thursdayStart, setThursdayStart] = useState<TimeType>(default_thursday_start);
+    const [thursdayEnd, setThursdayEnd] = useState<TimeType>(default_thursday_end);
 
-    const [fridayStart, setFridayStart] = useState<TimeType>(default_time_start);
-    const [fridayEnd, setFridayEnd] = useState<TimeType>(default_time_end);
+    const [fridayStart, setFridayStart] = useState<TimeType>(default_friday_start);
+    const [fridayEnd, setFridayEnd] = useState<TimeType>(default_friday_end);
 
-    const [saturdayStart, setSaturdayStart] = useState<TimeType>(default_time_start);
-    const [saturdayEnd, setSaturdayEnd] = useState<TimeType>(default_time_end);
+    const [saturdayStart, setSaturdayStart] = useState<TimeType>(default_saturday_start);
+    const [saturdayEnd, setSaturdayEnd] = useState<TimeType>(default_saturday_end);
 
-    const [prefferedSubjects, setPrefferedSubjects] = useState<Array<string>>([]);
+    const [prefferedSubjects, setPrefferedSubjects] = useState<Array<string>>(default_subjects);
 
 
     const subjects_data = section.get.data.map((e: CurrentSemester) => e.subjects);
@@ -74,7 +101,7 @@ export default function ModalInstructors() {
 
 
     const subjects_list = subjects_data.flat().map(e => ({ value: e.code, label: e.title }));
-    const subject_available_list = subjects_list.filter(e => !prefferedSubjects.includes(e.value));
+    const subject_available_list = [...new Set(subjects_list.filter(e => !prefferedSubjects.includes(e.value)))];
 
     const AddPreferred = () => {
         if (currentSubjectSelection == undefined) {
@@ -89,23 +116,41 @@ export default function ModalInstructors() {
     }
     const Finish = () => {
 
+        if (Modifying) {
+            const instructor_index = instructors.get.instructors.findIndex(x => x == Modifying);
 
-        const current_instructor: InstructorType = {
-            first_name: firstName,
-            last_name: lastName,
-            fulltime: isFullTime,
-            preffered_subjects: subjects_data.flat().filter(e => prefferedSubjects.includes(e.code)),
-            ...(useMonday && { monday: { time_start: mondayStart, time_end: mondayEnd } }),
-            ...(useTuesday && { tuesday: { time_start: tuesdayStart, time_end: tuesdayEnd } }),
-            ...(useWednesday && { wednesday: { time_start: wednesdayStart, time_end: wednesdayEnd } }),
-            ...(useThursday && { thursday: { time_start: thursdayStart, time_end: thursdayEnd } }),
-            ...(useFriday && { friday: { time_start: fridayStart, time_end: fridayEnd } }),
-            ...(useSaturday && { saturday: { time_start: saturdayStart, time_end: saturdayEnd } }),
-           
+            instructors.get.instructors[instructor_index] = {
+                first_name: firstName,
+                last_name: lastName,
+                fulltime: isFullTime,
+                preffered_subjects: [...new Set(subjects_data.flat().filter(e => prefferedSubjects.includes(e.code)))],
+                ...(useMonday && { monday: { time_start: mondayStart, time_end: mondayEnd } }),
+                ...(useTuesday && { tuesday: { time_start: tuesdayStart, time_end: tuesdayEnd } }),
+                ...(useWednesday && { wednesday: { time_start: wednesdayStart, time_end: wednesdayEnd } }),
+                ...(useThursday && { thursday: { time_start: thursdayStart, time_end: thursdayEnd } }),
+                ...(useFriday && { friday: { time_start: fridayStart, time_end: fridayEnd } }),
+                ...(useSaturday && { saturday: { time_start: saturdayStart, time_end: saturdayEnd } }),
+            }
 
-            load: 0
         }
-        instructors.get.instructors.push(current_instructor);
+        else {
+            const current_instructor: InstructorType = {
+                first_name: firstName,
+                last_name: lastName,
+                fulltime: isFullTime,
+                preffered_subjects: [... new Set(subjects_data.flat().filter(e => prefferedSubjects.includes(e.code)))],
+                ...(useMonday && { monday: { time_start: mondayStart, time_end: mondayEnd } }),
+                ...(useTuesday && { tuesday: { time_start: tuesdayStart, time_end: tuesdayEnd } }),
+                ...(useWednesday && { wednesday: { time_start: wednesdayStart, time_end: wednesdayEnd } }),
+                ...(useThursday && { thursday: { time_start: thursdayStart, time_end: thursdayEnd } }),
+                ...(useFriday && { friday: { time_start: fridayStart, time_end: fridayEnd } }),
+                ...(useSaturday && { saturday: { time_start: saturdayStart, time_end: saturdayEnd } }),
+            }
+            instructors.get.instructors.push(current_instructor);
+
+
+        }
+
         instructors.set();
 
         ui_state.get.modal = "closed";
@@ -125,7 +170,42 @@ export default function ModalInstructors() {
         ui_state.set();
     }
 
-    const isEligibleToProceed = firstName != "" && lastName != "" && (useMonday || useTuesday || useWednesday || useThursday || useFriday || useSaturday );
+    const ValidateSchedule = () => {
+        if (useMonday) {
+            if ((ConvertTimeToValue(mondayEnd) - ConvertTimeToValue(mondayStart)) < 0) {
+                return false;
+            }
+        }
+        if (useTuesday) {
+            if ((ConvertTimeToValue(tuesdayEnd) - ConvertTimeToValue(tuesdayStart)) < 0) {
+                return false;
+            }
+        }
+        if (useWednesday) {
+            if ((ConvertTimeToValue(wednesdayEnd) - ConvertTimeToValue(wednesdayStart)) < 0) {
+                return false;
+            }
+        }
+        if (useThursday) {
+            if ((ConvertTimeToValue(thursdayEnd) - ConvertTimeToValue(thursdayStart)) < 0) {
+                return false;
+            }
+        }
+        if (useFriday) {
+            if ((ConvertTimeToValue(fridayEnd) - ConvertTimeToValue(fridayStart)) < 0) {
+                return false;
+            }
+        }
+        if (useSaturday) {
+            if ((ConvertTimeToValue(saturdayEnd) - ConvertTimeToValue(saturdayStart)) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    const isEligibleToProceed = firstName != "" && lastName != "" && (useMonday || useTuesday || useWednesday || useThursday || useFriday || useSaturday) && ValidateSchedule();;
     return (
         <div className="relative size-max bg-grey-100 outline outline-1 outline-neutral-600/10 rounded-lg z-50 px-4 py-2">
             <button
@@ -144,7 +224,7 @@ export default function ModalInstructors() {
                         </>
                     ) :
                     (
-                        <p> Add Instructors</p>
+                        <p>{Modifying ? "Editing" : "Add"} Instructors</p>
                     )
                 }
 
@@ -244,7 +324,7 @@ export default function ModalInstructors() {
                     :
                     (
                         <>
-                            <div className="w-full h-full">
+                            <div className="w-[420px] h-full">
 
                                 <Baseline widthFull >
                                     <div className="flex items-end justify-between ">
