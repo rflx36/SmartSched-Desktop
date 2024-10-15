@@ -57,7 +57,7 @@ function SidebarNav(props: { icon_name: string }) {
 
     const ChangePage = () => {
         ui_state.get.sidebar_active = props.icon_name as SidebarsType;
-        ui_state.get.modal ="closed";
+        ui_state.get.modal = "closed";
         ui_state.set();
     }
 
@@ -65,7 +65,7 @@ function SidebarNav(props: { icon_name: string }) {
         const highlight = document.getElementById("sidebar-highlight");
 
         highlight!.style.opacity = "1";
-        
+
         switch (props.icon_name) {
             case "dashboard":
                 highlight!.style.top = "0px";
@@ -99,9 +99,9 @@ function SidebarNav(props: { icon_name: string }) {
     }
     const UnHover = () => {
         const highlight = document.getElementById("sidebar-highlight");
-        
+
         highlight!.style.opacity = "0";
-        
+
     }
     return (
         <button
@@ -133,18 +133,18 @@ function SidebarNavSetup(props: { state_step: number }) {
             <img src="images/sidebar-items-identifier.png" className="h-[79px]" />
             <div>
                 {
-                    (props.state_step < 4) ?
+                    (props.state_step < 3) ?
                         (
 
                             <div className="flex flex-col">
-                                <p className=" m-4 text-grey-750">Inputs & Constraints</p>
+                                <p className=" m-4 text-grey-750 font-manrope-semibold">Inputs & Constraints</p>
                                 <p className=" m-4 text-grey-500">Generate</p>
                             </div>
                         ) :
                         (
-                            <div className="h-10 bg-red-300">
-                                <p className="text-grey-500">Inputs & Constraints</p>
-                                <p className="text-grey-750">Generate</p>
+                            <div className="flex flex-col">
+                                <p className="m-4 text-grey-500">Inputs & Constraints</p>
+                                <p className="m-4 text-grey-750  font-manrope-semibold">Generate</p>
                             </div>
                         )
 

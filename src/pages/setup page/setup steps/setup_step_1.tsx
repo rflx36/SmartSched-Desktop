@@ -18,7 +18,6 @@ export default function SetupStep_1() {
     const instructors = useInstructorStore();
     const [activeYearTab, setActiveYearTab] = useState(sections.get.year_active as number);
     const [sem, setSem] = useState((sections.get.sem_active == "1st") ? 0 : 1);
-
     const [docked, setDocked] = useState<CurrentSemester | null>(null);
     const [selection, setSelection] = useState<CurrentSemester | null>(null);
     const data = sections.get.data.filter(x => x.year == activeYearTab);

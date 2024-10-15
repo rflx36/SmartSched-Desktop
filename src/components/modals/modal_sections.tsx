@@ -240,7 +240,7 @@ export default function ModalSections() {
                         <div className="min-w-[442px] ">
 
                             <div className=" font-manrope-semibold text-sm mb-1 text-neutral-500">
-                                <p> {YearTextDecoder(selected_year)} {selected_sem} Sem</p>
+                                <p>{(Modifying!= null)&&"Editing"} {YearTextDecoder(selected_year)} {selected_sem} Sem</p>
                             </div>
                             <div className="border-neutral-300 mt-4 border rounded-md w-auto h-max p-4 pb-3">
 
@@ -262,7 +262,7 @@ export default function ModalSections() {
                                     <img src="icons/icon-arrow.png" className="rotate-90" />
                                     <p className="mr-3">Back</p>
                                 </button>
-                                <p> {selected_course} {YearTextDecoder(selected_year)} {selected_sem} Sem</p>
+                                <p>{(Modifying!= null)&&"Editing"} {selected_course} {YearTextDecoder(selected_year)} {selected_sem} Sem</p>
                             </div>
                             <div className=" drop-shadow-sm border-neutral-300 mt-4 border rounded-md w-auto h-max p-4 pb-3">
                                 <div className="flex gap-2 mb-2">

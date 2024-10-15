@@ -3,7 +3,6 @@ import { SetupProceedButton } from "..";
 import Button from "../../../components/button";
 import Modifier from "../../../components/modifier";
 import { useInstructorStore } from "../../../stores/instructor_store";
-import { useSectionStore } from "../../../stores/section_store";
 import { useUIStore } from "../../../stores/ui_store";
 import { InstructorType } from "../../../types/types";
 
@@ -83,7 +82,7 @@ export default function SetupStep_2() {
                             <div className="w-[calc(100%-16px)] mx-2 min-h-[344px] h-[calc(100vh-406px)] overflow-y-scroll border border-baseline-outline rounded-lg">
                                 {instructors.get.instructors.map((x, i) => {
                                     const preffered_subject_1 = x.preffered_subjects[0];
-                                    const preffered_subject_2 = x.preffered_subjects[1];
+                                    const preffered_subject_2 = (preffered_subject_1?.code != x.preffered_subjects[1]?.code) ? x.preffered_subjects[1] : (x.preffered_subjects.length > 2) ? x.preffered_subjects[2] : null;
                                     const preffered_subjects_remaining = ((x.preffered_subjects.length - 3) > 0) ? (x.preffered_subjects.length - 3) : null;
                                     return (
                                         <div key={i} className="w-full h-[50px] flex justify-between items-center border-b border-baseline-outline font-manrope-semibold text-[14px] text-grey-500">

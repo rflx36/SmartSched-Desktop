@@ -2,7 +2,7 @@ import { ClassInstructorType, ClassSectionType, ClassSessionType, UIStateType } 
 
 export const DEFAULT_CLASS_SESSIONS: ClassSessionType = {
     time_start: "07:00",
-    time_end: "20:00",
+    time_end: "19:00",
     courses: [],
     rooms: [],
     break_time_start: "12:00",

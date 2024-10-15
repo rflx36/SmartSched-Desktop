@@ -10,7 +10,7 @@ import { CurrentSemester, InstructorType, TimeType, WeekType } from "../../types
 import ChipContainer from "../chip/container";
 import Chip from "../chip";
 import { useInstructorStore } from "../../stores/instructor_store";
-import { useSessionStore } from "../../stores/session_store";
+// import { useSessionStore } from "../../stores/session_store";
 import { ConvertTimeToValue } from "../../core/utils/time_converter";
 
 
@@ -21,11 +21,14 @@ import { ConvertTimeToValue } from "../../core/utils/time_converter";
 export default function ModalInstructors() {
     const ui_state = useUIStore();
     const section = useSectionStore();
-    const session = useSessionStore();
+    // const session = useSessionStore();
     const instructors = useInstructorStore();
 
-    const default_time_start = session.get.time_start;
-    const default_time_end = session.get.time_end;
+    // const default_time_start = session.get.time_start;
+    // const default_time_end = session.get.time_end;
+
+    const default_time_start = "08:00";
+    const default_time_end = "17:00";
 
     const Modifying = ui_state.get.modal_edit_instructors;
     const default_first_name = (Modifying) ? Modifying.first_name : "";
@@ -33,7 +36,7 @@ export default function ModalInstructors() {
     const default_is_full_time = (Modifying) ? Modifying.fulltime : true;
     const default_subjects = (Modifying) ? Modifying.preffered_subjects.map(x => x.code) : [];
 
-    const default_use_monday = true;
+    const default_use_monday = (Modifying?.monday)?true:false;
     const default_use_tuesday = (Modifying?.tuesday) ? true : false;
     const default_use_wednesday = (Modifying?.wednesday) ? true : false;
     const default_use_thursday = (Modifying?.thursday) ? true : false;

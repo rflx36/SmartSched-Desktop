@@ -180,8 +180,10 @@ export default function SetupStep_0() {
 
 
     const DeleteRoom = (value: RoomType) => {
-        setRooms(rooms.filter((x) => x != value));
-        UpdateState();
+        const modified_rooms = rooms.filter((x) => x != value);
+        setRooms(modified_rooms);
+        class_session.get.rooms = modified_rooms;
+        class_session.set();
 
 
 
@@ -196,8 +198,11 @@ export default function SetupStep_0() {
             ui_state.set();
         }
         else {
-            setCourses(courses.filter((x) => x != value));
-            UpdateState();
+            const modified_course = courses.filter((x) => x != value);
+            setCourses(modified_course);
+            class_session.get.courses = modified_course;
+            class_session.set();
+
         }
     }
 
@@ -224,7 +229,7 @@ export default function SetupStep_0() {
         ui_state.set();
     }
 
-    const UpdateState = () => {
+    const UpdateState = async () => {
         class_session.get.time_start = timeStart;
         class_session.get.time_end = timeEnd;
         class_session.get.break_time_start = breakTimeStart;
@@ -265,11 +270,13 @@ export default function SetupStep_0() {
                 class_instructors.set();
             }
 
-
-            setCourses(courses.filter((x) => x != selection));
+            const modified_course = courses.filter((x) => x != selection);
+            setCourses(modified_course);
             ui_state.get.modal_action = null;
             ui_state.set();
-            UpdateState();
+            class_session.get.courses = modified_course;
+            class_session.set();
+
         }
         else if (ui_state.get.modal_action == "cancelled") {
             ui_state.get.modal_action = null;

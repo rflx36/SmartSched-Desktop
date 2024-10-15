@@ -1,0 +1,31 @@
+
+
+
+.schedule-container:hover .type-a{
+    background: #E9AA96;
+}
+
+.schedule-container:hover .type-b{
+    background: #C185A2;
+}
+
+.schedule-container:hover .type-c{
+    background: #6962AD;
+}
+
+
+.schedule-container:hover .type-d{
+    background: #3B48DC;
+}
+
+.schedule-container:hover .type-e{
+    background: #258EFF;
+}
+
+.schedule-container:hover .type-f{
+    background: #37C9E7;
+}
+
+.schedule-container:hover .type-g{
+    background: #45E4A6;
+}

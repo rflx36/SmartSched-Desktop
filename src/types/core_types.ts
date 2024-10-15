@@ -30,3 +30,11 @@ export interface IScheduleBufferType {
     day: WeekType,
     instructor: InstructorType
 }
+
+
+export interface ISchedulingResultType {
+    result: Array<IScheduleBufferType>,
+    instructors_time_allocation: Array<InstructorType>,
+    rooms_time_allocation: Array<TimeAllocationBufferType>,
+    rooms: Array<string>,
+}
