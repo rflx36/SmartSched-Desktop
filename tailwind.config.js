@@ -14,12 +14,56 @@ export default {
 
 
     extend: {
-      width:{
-        "input-full":"calc(100vw - 700px)",
-        "input-half":"calc(50vw - 350px)",
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 }
+        },
+        fadeInQuadrant: {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 0.2 }
+        },
+        fadeOut: {
+          '0%': { opacity: 1 },
+          '100%': { opacity: 0 }
+        },
+        scaleIn: {
+          '0%': { transform: 'scale(0)' },
+          '100%': { transform: 'scale(1)' }
+        },
+        scaleOut: {
+          '0%': { transform: 'scale(1)' },
+          '100%': { transform: 'scale(0)' }
+        },
+        fadeScaleIn: {
+          '0%': {
+            opacity: 0,
+            transform: 'scale(0.98)'
+          },
+          '100%': {
+            opacity: 1,
+            transform: 'scale(1)'
+          }
+        }
+
+      },
+
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in forwards',
+        'fade-in-2': 'fadeInQuadrant 0.5s cubic-bezier(0.130, 0.835, 0.130, 0.830) forwards ',
+        'fade-out': 'fadeOut 0.5s ease-in forwards',
+        'scale-in': 'scaleIn 0.3s ease-in forwards',
+        'scale-out': 'scaleOut 0.3s ease-in forwards',
+        'fade-scale-in': 'fadeScaleIn 0.5s cubic-bezier(0.405, 1.070, 0.435, 0.780)'
+      },
+
+      width: {
+        "input-full": "calc(100vw - 700px)",
+        "input-half": "calc(50vw - 350px)",
       },
       transitionTimingFunction: {
-        'bezier-in': "cubic-bezier(0.405, 1.070, 0.435, 0.780); "
+        'bezier-in': "cubic-bezier(0.405, 1.070, 0.435, 0.780)",
+        'bezier-in-2': "cubic-bezier(0.130, 0.835, 0.130, 0.830)"
       },
       colors: {
         "grey": {
@@ -43,6 +87,9 @@ export default {
         },
         "invalid": "#F57272",
         "valid": "#96E99E",
+        "primary": "#E9AA96",
+        "secondary": "#C185A2",
+        "accent": "#6962AD",
       },
 
 

@@ -1,4 +1,4 @@
-import { IScheduleBufferType } from "./core_types";
+import { DataFiltered, IScheduleBufferType } from "./core_types";
 
 type h = "00" | '01' | '02' | '03' | '04' | '05'
     | '06' | '07' | '08' | '09' | '10' | '11' | '12'
@@ -13,7 +13,7 @@ type m = h | '25' | '26' | '27' | '28' | '29' | '30'
 export type TimeType = `${h}:${m}`;
 export type YearType = 1 | 2 | 3 | 4;
 export type SemesterType = "1st" | "2nd";
-export type ModalsType = "rooms" | "courses" | "sections" | "instructors" | "closed" | "delete";
+export type ModalsType = "rooms" | "courses" | "sections" | "instructors" | "closed" | "delete" | "schedule" | "upload auth";
 export type ModalsActionType = "confirmed" | "cancelled" | null;
 export type WeekType = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 export type SidebarsType = "dashboard" | "schedules" | "setup" | "subjects" | "instructors";
@@ -43,7 +43,6 @@ export interface Subject {
     code: string,
     total_hours: number,
     is_dividable: boolean,
-
 }
 
 export interface SubjectHasLabLec {
@@ -84,6 +83,11 @@ export interface UIStateType {
         sections: number,
     } | null,
     modal_edit_instructors: InstructorType | null,
+    modal_upload_auth: {
+        semester: SemesterType,
+        rooms: Array<RoomType>,
+        data: Array<IScheduleBufferType>
+    } | null,
     dropdown_course: string
 }
 
@@ -100,7 +104,7 @@ export interface ClassSessionType {
     break_time_end: TimeType
 }
 
-interface TimeAvailabilityType {
+export interface TimeAvailabilityType {
     time_start: TimeType,
     time_end: TimeType,
 }
@@ -139,3 +143,12 @@ export interface SubjectDetailType {
     is_partitionable: boolean,
     type: "lecture" | "labaratory"
 }
+
+
+export interface ViewScheduleType {
+    selected: string,
+    data: DataFiltered,
+    highlighted_id: string,
+    view_availability : boolean,
+}
+

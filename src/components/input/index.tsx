@@ -13,8 +13,9 @@ interface InputType {
     size?: "small" | "base" | "large" | "larger",
     placeholder?: string,
     maxLength?: number,
-    invalid?: string
-
+    invalid?: string,
+    textCenter?: boolean,
+    upperCase?: boolean
 }
 
 
@@ -46,8 +47,9 @@ export default function Input(props: InputType) {
                 return "max-w-48";
         }
     }
-    
-    const custom_style = `${size()}`;
+    const use_text_center = !!props.textCenter ? "text-center" : "";
+    const use_upper_case = !!props.upperCase ? "uppercase":"";
+    const custom_style = `${size()} ${use_text_center} ${use_upper_case}`;
 
     return (
         <div className="flex flex-col m-1 w-auto">

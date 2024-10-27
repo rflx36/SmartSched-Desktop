@@ -26,7 +26,7 @@ export default class SchedulingCSP {
     private break_time_end: number = 0;
     private courses: Array<CourseType> = [];
     private rooms: Array<string> = [];
-    private rooms_lab_amount: number = 0;
+    private rooms_lab: Array<string> = [];
     private rooms_allocation: Array<TimeAllocationBufferType> = [];
     private instructors_allocation: Array<TimeAllocationBufferType> = [];
 
@@ -45,27 +45,33 @@ export default class SchedulingCSP {
     private current_course: CourseType = { name: "", code: "" };
     private current_year: YearType = 1;
     private current_day: WeekType = "monday";
-    private current_subsequent_day: WeekType = "monday";
+    private current_subsequent_day: WeekType = "thursday";
     private current_is_partitionable: boolean = false;
 
     private current_week_buffer: Array<number> = [];
     private inputs: ICSP;
+
+
     constructor(inputs: ICSP) {
         this.inputs = inputs;
         this.data = inputs.data;
         this.instructors = inputs.instructors;
         this.courses = inputs.courses;
         this.rooms = inputs.rooms.concat(inputs.rooms_lab);
-        this.rooms_lab_amount = inputs.rooms_lab.length;
+        this.rooms_lab = inputs.rooms_lab;
         this.time_start = inputs.time_start;
         this.time_end = inputs.time_end;
         this.break_time_start = ConvertTimeToValue(inputs.break_time_start);
         this.break_time_end = ConvertTimeToValue(inputs.break_time_end);
-        this.current_room_lab = this.rooms.length - this.rooms_lab_amount;
+        this.current_room_lab = inputs.rooms.length;
+        // this.current_room_lab = this.rooms.length - this.rooms_lab_amount;
+
+
     }
 
 
     private EnqueueSubjects() {
+
         const current_time_end_value = ConvertTimeToValue(this.current_time_end);
         const modified_time_end_value = ConvertValueToTime(current_time_end_value - 1);
         const schedule_result: IScheduleBufferType = {
@@ -178,6 +184,14 @@ export default class SchedulingCSP {
         while (is_not_available) {
             limit++;
             if (limit >= 10000) {
+                console.log("ENDED AT: course:[" + this.current_course.code + "] section:[" + this.current_section +
+                    "] subject:[" + this.current_subject.code + "] time_start:[" + this.current_time_start + "] time_end:[" + this.current_time_end,
+                    "] day:[" + this.current_day + (this.current_is_partitionable && "] subsequent:[" + this.current_subsequent_day) +
+                    "] instructor:[" + this.instructors[this.current_instructor].first_name + "] room:[" + this.rooms[this.current_room] +
+                    "]"
+
+
+                );
                 console.log("max loop reached");
                 return false;
             }
@@ -204,8 +218,22 @@ export default class SchedulingCSP {
                 continue;
             }
 
+            if (this.current_is_partitionable && (this.days.indexOf(this.current_day) > 2)) {
+                
+                this.current_day = "monday";
+                this.current_subsequent_day = GetPrecedingDay(this.current_day, this.subsequent_subject_day_interval);
+                if (week_allocation_buffer.includes("monday") && week_allocation_buffer.includes("tuesday") && week_allocation_buffer.includes("wednesday")) {
+                    week_allocation_buffer = [];
+                    if (this.SwitchInstructors(this.current_instructor)) {
+                        console.log("no available slots");
+                        console.log(this.current_subject);
+                        if (this.SwitchRooms()) {
+                            return false;
+                        }
+                    }
+                }
+            }
             is_not_available = this.VerifyTotalAvailability();
-
             //skips the proposed time_start and time_end if it goes beyond time end of the day and proceeds to the next following day
             if (current_time_end_value > ConvertTimeToValue(this.time_end)) {
                 this.current_time_start = this.time_start;
@@ -230,13 +258,19 @@ export default class SchedulingCSP {
                     }
                     console.log("switched instructors from:" + temp + " to:" + this.current_instructor);
                 }
+
+
+
+                // console.log("switche day from:" + temp_day + "to:" + this.current_day);
                 continue;
             }
         }
         // this.current_session += current_allocation;
+
+
         const day_index = this.days.indexOf(this.current_day);
         this.current_session[day_index] += (current_allocation / 60);
-        console.log(this.current_session);
+        // console.log(this.current_session);
         return true;
     }
     private SwitchInstructors(cur: number) {
@@ -253,7 +287,7 @@ export default class SchedulingCSP {
         for (let i = 0; i < this.instructors.length; i++) {
             if (this.instructors[i].load == fewest_load && cur != i && !this.current_week_buffer.includes(i)) {
 
-                
+
                 this.current_instructor = i;
                 break;
             }
@@ -298,7 +332,7 @@ export default class SchedulingCSP {
 
     }
     private SwitchRooms() {
-        
+
         if ((this.rooms[this.current_room + 1]) != null) {
             this.current_room++;
             return false;
@@ -357,12 +391,15 @@ export default class SchedulingCSP {
 
             this.current_subject = current_lec;
             //lecture preperation
+
+
             if (!this.CheckSubjectsAvailability()) {
                 return false;
             }
 
             this.EnqueueSubjects();   //set result queue for lecture
             this.DequeueSubjects(); // temporarily add queue
+
             valid_schedule_results.push(...this.schedule_result_queue);
             this.schedule_result_queue = [];
 
@@ -384,6 +421,8 @@ export default class SchedulingCSP {
             this.current_room = section_room;
 
         }
+
+
         else {
             const current = this.current_subjects[subject_index] as Subject;
             this.current_subject = current;
@@ -412,10 +451,13 @@ export default class SchedulingCSP {
         }
         console.log("SUCCESS");
     }
+
+
     private SetSubjects(current_path: Array<number>, iterate: number) {
         if (iterate >= this.current_subjects.length) {
             return true;
         }
+
         const path_available_list = this.current_subjects.filter((_, i) => !current_path.includes(i));
 
         for (let i = 0; i < path_available_list.length; i++) {
@@ -424,11 +466,27 @@ export default class SchedulingCSP {
             if (this.CheckSubjectValidity(subject_index)) {
                 const temp_queue = this.schedule_result_queue;
                 this.DequeueSubjects(); //add
+                console.log("ADDED: course:[" + this.current_course.code + "] section:[" + this.current_section +
+                    "] subject:[" + this.current_subject.code + "] time_start:[" + this.current_time_start + "] time_end:[" + this.current_time_end,
+                    "] day:[" + this.current_day + (this.current_is_partitionable ? "] subsequent:[" + this.current_subsequent_day : "") +
+                    "] instructor:[" + this.instructors[this.current_instructor].first_name + "] room:[" + this.rooms[this.current_room] +
+                    "]"
+
+
+                );
                 if (this.SetSubjects(current_path, iterate + 1)) {
 
                     return true;
                 }
-                console.log("removed");
+                // console.log("removed");
+                console.log("REMOVED: course:[" + this.current_course.code + "] section:[" + this.current_section +
+                    "] subject:[" + this.current_subject.code + "] time_start:[" + this.current_time_start + "] time_end:[" + this.current_time_end,
+                    "] day:[" + this.current_day + (this.current_is_partitionable ? "] subsequent:[" + this.current_subsequent_day : "") +
+                    "] instructor:[" + this.instructors[this.current_instructor].first_name + "] room:[" + this.rooms[this.current_room] +
+                    "]"
+
+
+                );
                 this.RemoveSubjects(temp_queue); // remove
                 //remove
             }
@@ -461,11 +519,31 @@ export default class SchedulingCSP {
         }
         return true;
     }
+    private OptimizeRaw() {
+        let optimizedData: Array<IScheduleBufferType> = [];
+
+        for (let i = 0; i < this.schedule_result.length; i++) {
+            const result = this.schedule_result[i];
+            const day_index = this.days.indexOf(result.day);
+            if (result.subject.total_hours == 0) {
+                continue;
+            }
+            optimizedData.push(result);
+            if (result.subject.is_dividable) {
+
+                const subsequent_day_index = day_index + 3;
+                optimizedData.push({ ...result, day: this.days[subsequent_day_index] });
+            }
+        }
+        this.schedule_result = optimizedData;
+    }
+
     public async Solve() {
 
         if (!CheckInputsEligibility(this.inputs)) {
             return false;
         }
+        console.log("::::::::::STARTED:::::::::");
         for (let i = 0; i < this.courses.length; i++) {
             this.current_course = this.courses[i];
             for (let year = 1; year <= 4; year++) {
@@ -476,14 +554,24 @@ export default class SchedulingCSP {
                 }
                 this.current_subjects = current.subjects;
                 if (!this.SetSections(current.sections)) {
+                    console.log(":::::::::::ENDED:::::::::::");
+
+                    console.log(this.rooms_allocation);
+                    console.log(this.instructors);
+                    console.log(this.schedule_result);
                     return false;
                 }
             }
         }
+        console.log(":::::::::::ENDED:::::::::::");
+        this.OptimizeRaw();
         console.log(this.rooms_allocation);
         console.log(this.instructors);
         console.log(this.schedule_result);
         this.PrintResults();
+
+
+
 
         const result_response: ISchedulingResultType = {
             result: this.schedule_result,

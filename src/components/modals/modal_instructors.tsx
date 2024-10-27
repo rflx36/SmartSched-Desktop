@@ -157,6 +157,8 @@ export default function ModalInstructors() {
         instructors.set();
 
         ui_state.get.modal = "closed";
+        
+        ui_state.get.modal_edit_instructors = null;
         ui_state.set();
 
         setFirstName("");
@@ -210,7 +212,7 @@ export default function ModalInstructors() {
 
     const isEligibleToProceed = firstName != "" && lastName != "" && (useMonday || useTuesday || useWednesday || useThursday || useFriday || useSaturday) && ValidateSchedule();;
     return (
-        <div className="relative size-max bg-grey-100 outline outline-1 outline-neutral-600/10 rounded-lg z-50 px-4 py-2">
+        <div className="relative  size-max bg-grey-100 outline outline-1 outline-neutral-600/10 rounded-lg z-50 px-4 py-2">
             <button
                 onClick={Close}
                 className="hover:bg-neutral-400/75 size-3 rounded-full p-2 absolute top-2 right-2 bg-neutral-300 grid place-content-center bg-[url('icons/icon-close.png')] bg-no-repeat bg-center bg-[length:10px_10px]" >

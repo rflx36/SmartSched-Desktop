@@ -45,6 +45,10 @@ export function GetPrecedingDay(current_day: WeekType, interval: number) {
     return days[new_index];
 }
 
+
+
+
+
 // turn to values and just map??
 
 

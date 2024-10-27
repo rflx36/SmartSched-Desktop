@@ -48,6 +48,21 @@ function SetupProgressContainer() {
         ui_state.get.sidebar_setup_step = ui_state.get.sidebar_setup_step - 1;
         ui_state.set();
     }
+
+    let color = "bg-[#E9AA96]"
+    switch (ui_state.get.sidebar_setup_step) {
+        case 2:
+            color = "bg-[#C185A2]";
+            break;
+        case 3:
+            color = "bg-[#6962AD]";
+
+            break;
+        case 4:
+            color = "bg-grey-900";
+
+            break;
+    }
     return (
         <div className="w-full h-[80px] flex justify-center bg-baseline-base bg-opacity-50  border-b-baseline-outline border backdrop-blur-0">
             {
@@ -61,13 +76,13 @@ function SetupProgressContainer() {
                 ) : <></>
             }
 
-           
+
 
             <div className="flex justify-center items-center gap-[10px] w-[430px] ">
-                {(ui_state.get.sidebar_setup_step >= 1) ? (<div className="h-2 w-[100px] rounded-full bg-grey-900" />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
-                {(ui_state.get.sidebar_setup_step >= 2) ? (<div className="h-2 w-[100px] rounded-full bg-grey-900" />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
-                {(ui_state.get.sidebar_setup_step >= 3) ? (<div className="h-2 w-[100px] rounded-full bg-grey-900" />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
-                {(ui_state.get.sidebar_setup_step >= 4) ? (<div className="h-2 w-[100px] rounded-full bg-grey-900" />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
+                {(ui_state.get.sidebar_setup_step >= 1) ? (<div className={"h-2 w-[100px] rounded-full ease-in duration-300 " + color} />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
+                {(ui_state.get.sidebar_setup_step >= 2) ? (<div className={"h-2 w-[100px] rounded-full ease-in duration-300 " + color} />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
+                {(ui_state.get.sidebar_setup_step >= 3) ? (<div className={"h-2 w-[100px] rounded-full ease-in duration-300 " + color} />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
+                {(ui_state.get.sidebar_setup_step >= 4) ? (<div className={"h-2 w-[100px] rounded-full ease-in duration-300 " + color} />) : (<div className="h-2 w-[100px] rounded-full bg-grey-300" />)}
             </div>
             <div className="w-[430px] bottom-[6px] absolute flex justify-center font-manrope-medium text-[16px]">
                 <p>{ui_state.get.sidebar_setup_step} / 4</p>

@@ -9,6 +9,8 @@ import { auth } from "./firebase/firebase_config";
 import { useEffect, useState } from "react";
 import ModalDelete from "./components/modals/modal_delete";
 import ModalInstructors from "./components/modals/modal_instructors";
+import ModalTimeTable from "./components/modals/modal_timetable";
+import ModalUploadAuth from "./components/modals/modal_upload_auth";
 // import { useSectionStore } from "./stores/section_store";
 // import { useSessionStore } from "./stores/session_store";
 
@@ -50,12 +52,14 @@ function App() {
             (ui_state.get.modal != "closed") ?
               (
                 <div className="w-[calc(100%-285px)] h-full grid place-content-center absolute ">
-                  <div className="w-full h-full bg-black opacity-20 z-20 absolute "></div>
+                  <div className="w-full h-full bg-black opacity-20 z-20 absolute animate-fade-in-2"></div>
                   <div className="z-30">
 
                     {(ui_state.get.modal == "sections") && <ModalSections />}
                     {(ui_state.get.modal == "delete") && <ModalDelete />}
                     {(ui_state.get.modal == "instructors") && <ModalInstructors />}
+                    {(ui_state.get.modal == "schedule") && <ModalTimeTable />}
+                    {(ui_state.get.modal == "upload auth") && <ModalUploadAuth />}
                   </div>
                 </div>
               )

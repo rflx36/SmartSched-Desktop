@@ -5,59 +5,170 @@ import SchedulingCSP from "../../../core/csp"
 import { useInstructorStore } from "../../../stores/instructor_store";
 import { useSectionStore } from "../../../stores/section_store";
 import { useSessionStore } from "../../../stores/session_store";
-import { ICSP, IScheduleBufferType, ISchedulingResultType } from "../../../types/core_types";
-import { app } from "electron";
-import { TimeType } from "../../../types/types";
+import { DataFiltered, ICSP, ISchedulingResultType } from "../../../types/core_types";
+import { RoomType, TimeType } from "../../../types/types";
 import { ConvertTimeToValue } from "../../../core/utils/time_converter";
 import '../../../custom.css';
-import { GetPrecedingDay } from "../../../core/utils/time_modifier";
+import { useUIStore } from "../../../stores/ui_store";
+import { useScheduleStore } from "../../../stores/schedule_store";
+import FilterResult from "../../../core/utils/filter_result";
+import Input from "../../../components/input";
+import { numberToSeed, seedToNumber, shuffleArrayWithSeed } from "../../../core/utils/seed";
 
 
 export default function SetupStep_4() {
+    const ui_state = useUIStore();
     const class_session = useSessionStore();
     const class_section = useSectionStore();
     const class_instructors = useInstructorStore();
-
     const [filter, setFilter] = useState(1);
     const [data, setData] = useState<ISchedulingResultType | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [seed, setSeed] = useState("");
+    const [regenerateCounter, setRegenerateCounter] = useState(0);
+    const Compute = async (inputs: ICSP, attempts: number) => {
 
-    useEffect(() => {
-
-        const Compute = async () => {
-
-            const inputs: ICSP = {
-                time_start: class_session.get.time_start,
-                time_end: class_session.get.time_end,
-                break_time_start: class_session.get.break_time_start,
-                break_time_end: class_session.get.break_time_end,
-                instructors: class_instructors.get.instructors,
-                courses: class_session.get.courses,
-                rooms: class_session.get.rooms.filter(x => !x.is_realtime).map(x => x.room_name),
-                rooms_lab: class_session.get.rooms.filter(x => x.is_realtime).map(x => x.room_name),
-                data: class_section.get.data
-            }
-            const csp = new SchedulingCSP(inputs);
-
-            const solved_data = await csp.Solve();
-            if (solved_data) {
-                setData(solved_data);
-            }
-            else {
-                //retry
-            }
+        // const deep_copy = structuredClone(inputs)
+        const deep_copy = structuredClone(inputs);
+        const csp = new SchedulingCSP(deep_copy);
+        // const prototype = new SchedulingCSPAlternating(inputs);
+        // await prototype.Solve();
+        const solved_data = await csp.Solve();
+        if (solved_data) {
+            setData(solved_data);
+            setIsGenerating(false);
         }
-        Compute();
+        else {
+            setTimeout(() => {
 
+                Regenerate(attempts);
+            }, 10)
+        }
+    }
+    useEffect(() => {
+        const inputs: ICSP = {
+            time_start: class_session.get.time_start,
+            time_end: class_session.get.time_end,
+            break_time_start: class_session.get.break_time_start,
+            break_time_end: class_session.get.break_time_end,
+            instructors: class_instructors.get.instructors,
+            courses: class_session.get.courses,
+            rooms: class_session.get.rooms.filter(x => !x.is_realtime).map(x => x.room_name),
+            rooms_lab: class_session.get.rooms.filter(x => x.is_realtime).map(x => x.room_name),
+            data: class_section.get.data
+        }
+        Compute(inputs, 0);
     }, [])
-    // app.commandLine
-    // app.commandLine.appendSwitch('js-flags', '--expose_gc --max-old-space-size=128');
+
+    const Upload = () => {
+        ui_state.get.modal = "upload auth";
+        const input = {
+            semester: class_section.get.sem_active,
+            rooms: class_session.get.rooms,
+            data: data!.result
+        }
+        ui_state.get.modal_upload_auth = input;
+        ui_state.set();
+    }
+
+    const Regenerate = (counter: number) => {
+        // if (data == null) {
+        //     return;
+        // }
+        if (counter < 100) {
+            setRegenerateCounter(counter);
+        }
+        else {
+            return;
+        }
+        const randomized = numberToSeed(Math.floor(Math.random() * (0x80000000) - 1));
+        setSeed(randomized);
+        const current_seed = randomized;
+
+        const inputs: ICSP = {
+            time_start: class_session.get.time_start,
+            time_end: class_session.get.time_end,
+            break_time_start: class_session.get.break_time_start,
+            break_time_end: class_session.get.break_time_end,
+            instructors: shuffleArrayWithSeed(class_instructors.get.instructors, current_seed),
+            courses: class_session.get.courses,
+            rooms: shuffleArrayWithSeed(class_session.get.rooms.filter(x => !x.is_realtime).map(x => x.room_name), current_seed),
+            rooms_lab: class_session.get.rooms.filter(x => x.is_realtime).map(x => x.room_name),
+            data: class_section.get.data.map(x => ({ ...x, subjects: shuffleArrayWithSeed(x.subjects, current_seed) }))
+        }
+        Compute(inputs, counter + 1);
+
+    }
+    const SeedTriggerRegenerate = (x: string) => {
+        setSeed(x)
+        const current_seed = x;
+        const inputs: ICSP = {
+            time_start: class_session.get.time_start,
+            time_end: class_session.get.time_end,
+            break_time_start: class_session.get.break_time_start,
+            break_time_end: class_session.get.break_time_end,
+            instructors: shuffleArrayWithSeed(class_instructors.get.instructors, current_seed),
+            courses: class_session.get.courses,
+            rooms: shuffleArrayWithSeed(class_session.get.rooms.filter(x => !x.is_realtime).map(x => x.room_name), current_seed),
+            rooms_lab: class_session.get.rooms.filter(x => x.is_realtime).map(x => x.room_name),
+            data: class_section.get.data.map(x => ({ ...x, subjects: shuffleArrayWithSeed(x.subjects, current_seed) }))
+        }
+        Compute(inputs, 1);
+    }
+
+    const TriggerRegenerate = () => {
+        if (isGenerating) {
+            return;
+        }
+        setIsGenerating(true);
+        Regenerate(0);
+
+    }
 
     return (
         <div className="flex mt-4">
             <Border>
                 <Baseline>
-                    <div className="w-80 min-h-[475px] h-[calc(100vh-220px)]">
+                    <div className="w-80 min-h-[475px] flex flex-col justify-between h-[calc(100vh-220px)]">
+                        <div className="w-full flex flex-col items-center h-max gap-6">
+                            <div className="w-max mt-8">
+                                <Input maxLength={4} upperCase type="text" value={seed} onChange={(x) => SeedTriggerRegenerate(x)} label="Seed" textCenter />
+                            </div>
+                            <button onClick={TriggerRegenerate} className={((isGenerating) ? " cursor-default" : "") + " w-52 h-12  border-4 border-grey-200 rounded-[10px] grid place-content-center"} >
+                                <div className=" w-[200px] grid place-content-center rounded-md bg-[linear-gradient(90deg,rgba(233,170,150,0.5)_0%,rgba(193,133,162,0.5)_48%,rgba(105,98,173,0.5)_100%)]  h-10">
+                                    {
+                                        (isGenerating) ?
+                                            <div className="w-[196px] rounded-[4px] h-9 grid place-content-center bg-baseline-base bg-opacity-35 ease-bezier-in duration-100">
+                                                <img src="images/loader.png" className="animate-spin" />
+                                            </div>
+                                            :
+                                            <div className="w-[196px] rounded-[4px] h-9 grid place-content-center bg-baseline-base hover:bg-opacity-75 ease-bezier-in duration-100">
+                                                <p className="bg-gradient-to-r from-[#e9aa96] via-[#c185a2] to-[#6962ad] text-[16px] font-manrope-bold bg-clip-text text-transparent">Re-Generate</p>
+                                            </div>
+                                    }
+                                </div>
+                            </button>
+                            {
+                            }
+                            <div className="font-manrope-semibold text-grey-500">
+                                Attempts:{regenerateCounter}
 
+                            </div>
+
+                        </div>
+                        <div className="w-full h-max mb-[65px] flex flex-col gap-6 items-center">
+
+                            <div className="w-max h-max grid place-content-center p-1 bg-grey-200 rounded-lg">
+                                <button onClick={Upload} className="w-[200px] h-[40px]    hover:bg-grey-750/90  bg-grey-750 border border-grey-900 rounded-md">
+                                    <p className="text-[16px] font-manrope-semibold text-grey-100">Upload</p>
+                                </button>
+                            </div>
+                            <div className="w-max h-max grid place-content-center p-1 bg-grey-200 rounded-lg">
+                                <button className="w-[200px] h-[40px] text-grey-500 hover:text-grey-750  hover:border-grey-400/80  bg-baseline-base border border-grey-300 rounded-md">
+                                    <p className="text-[16px] font-manrope-semibold">Export as CSV</p>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </Baseline>
             </Border>
@@ -79,7 +190,20 @@ export default function SetupStep_4() {
                             </div>
                         </Baseline>
                     </div>
-                    {data != null && <ScheduleContainer filter={filter} data={data} />}
+
+                    {(data == null) ?
+                        (
+                            <>
+                                <img src="images/loader.png" className="animate-spin" />
+                            </>
+                        )
+                        :
+                        (
+                            <div className={isGenerating ? "opacity-75 pointer-events-none" : ""} >
+                                <ScheduleContainer filter={filter} data={data} rooms={class_session.get.rooms} />
+                            </div>
+                        )
+                    }
 
                 </div>
             </Border>
@@ -87,69 +211,80 @@ export default function SetupStep_4() {
     )
 }
 
-function ScheduleContainer(props: { filter: number, data: ISchedulingResultType }) {
-    const SetFilter = () => {
-        console.log(props.data.result);
-        const result = props.data.result;
-        let filtered_result = [];
-        if (props.filter == 1) {
-            const rooms = result.map(x => x.room).filter((x, i, s) => s.indexOf(x) === i);
-            for (let i = 0; i < rooms.length; i++) {
-                const room_index_filter = result.filter(x => x.room == rooms[i]);
-                const subsequents = room_index_filter.filter(x=> x.subject.is_dividable).map(x=>{
-                    const subsequent_day = GetPrecedingDay(x.day,3);
-                    return {...x,day:subsequent_day}
-                });
-                filtered_result.push([...room_index_filter,...subsequents]);
-            }
-        }
-        return filtered_result;
+function ScheduleContainer(props: { filter: number, data: ISchedulingResultType, rooms: Array<RoomType> }) {
+    const ui_state = useUIStore();
+    const schedule = useScheduleStore();
+    const filtered_data = FilterResult(props.filter, props.data.result, props.rooms.map(x => x.room_name));
+
+    const ViewSchedule = (x: DataFiltered) => {
+
+        schedule.get.selected = x.filter;
+        schedule.get.data = x;
+
+        schedule.get.view_availability = (props.filter == 2);
+        schedule.set();
+        ui_state.get.modal = "schedule";
+        ui_state.set();
     }
-    const filtered_data = SetFilter();
-    console.log(props.data.result);
-    console.log(filtered_data);
-    
+
+
     return (
         <div className="mt-20   inline-block ">
-            {filtered_data.map((x, i) => {
-                const monday_indicator = x.filter(indicator_x => indicator_x.day == "monday");
-                const tuesday_indicator = x.filter(indicator_x => indicator_x.day == "tuesday");
-                const wednesday_indicator = x.filter(indicator_x => indicator_x.day == "wednesday");
-                const thursday_indicator = x.filter(indicator_x => indicator_x.day == "thursday");
-                const friday_indicator = x.filter(indicator_x => indicator_x.day == "friday");
-                const saturday_indicator = x.filter(indicator_x => indicator_x.day == "saturday");
-                const sections_filtered = x.map(indicator_x => indicator_x.section).filter((x, i, s) => s.indexOf(x) === i)
-                return (
-                    <div key={i} className="cursor-pointer mx-1 schedule-container relative w-[152px] h-[152px] rounded-[4px] border inline-block border-grey-300 bg-grey-100">
-                        <div className="w-full h-full flex flex-col items-center">
-                            <div className="w-[115px] h-[120px] mt-2  overflow-hidden flex gap-[5px] ">
-                                <div className="schedule-container relative w-[15px] h-full ">
-                                    {monday_indicator.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={sections_filtered.indexOf(indicator_x.section)} />)}
+            {
+                filtered_data.map((x, i) => {
+                    let combined: Array<any> = [];
+
+                    if (x.monday_schedule) {
+                        combined = [...combined, ...x.monday_schedule];
+                    }
+                    if (x.tuesday_schedule) {
+                        combined = [...combined, ...x.tuesday_schedule];
+                    }
+                    if (x.wednesday_schedule) {
+                        combined = [...combined, ...x.wednesday_schedule];
+                    }
+                    if (x.thursday_schedule) {
+                        combined = [...combined, ...x.thursday_schedule];
+                    }
+                    if (x.friday_schedule) {
+                        combined = [...combined, ...x.friday_schedule];
+                    }
+                    if (x.saturday_schedule) {
+                        combined = [...combined, ...x.saturday_schedule];
+                    }
+
+                    const filtered_sections = [... new Set(combined.map(day => day.section))];
+
+                    return (
+                        <div key={i} onClick={() => ViewSchedule(x)} className="cursor-pointer mx-1 schedule-container relative w-[152px] h-[152px] rounded-[4px] border inline-block border-grey-300 bg-grey-100">
+                            <div className="w-full h-full flex flex-col items-center">
+                                <div className="w-[115px] h-[120px] mt-2  overflow-hidden flex gap-[5px] ">
+                                    <div className="relative w-[15px] h-full ">
+                                        {x.monday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                                    </div>
+                                    <div className="relative w-[15px] h-full ">
+                                        {x.tuesday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                                    </div>
+                                    <div className="relative w-[15px] h-full ">
+                                        {x.wednesday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                                    </div>
+                                    <div className="relative w-[15px] h-full ">
+                                        {x.thursday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                                    </div>
+                                    <div className="relative w-[15px] h-full ">
+                                        {x.friday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                                    </div>
+                                    <div className="relative w-[15px] h-full ">
+                                        {x.saturday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                                    </div>
                                 </div>
-                                <div className="relative w-[15px] h-full">
-                                    {tuesday_indicator.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={sections_filtered.indexOf(indicator_x.section)} />)}
-                                </div>
-                                <div className="relative w-[15px] h-full">
-                                    {wednesday_indicator.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={sections_filtered.indexOf(indicator_x.section)} />)}
-                                </div>
-                                <div className="relative w-[15px] h-full">
-                                    {thursday_indicator.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={sections_filtered.indexOf(indicator_x.section)} />)}
-                                </div>
-                                <div className="relative w-[15px] h-full">
-                                    {friday_indicator.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={sections_filtered.indexOf(indicator_x.section)} />)}
-                                </div>
-                                <div className="relative w-[15px] h-full">
-                                    {saturday_indicator.map((indicator_x, indicator_i) => <TimeAllocatedIndicator key={indicator_i} time_start={indicator_x.time_start} time_end={indicator_x.time_end} type={sections_filtered.indexOf(indicator_x.section)} />)}
-                                </div>
+                                <p className="font-manrope-bold text-[12px]">{x.filter}  </p>
+
                             </div>
-                            <p>{props.data.rooms[x[0].room]}  </p>
                         </div>
-
-                    </div>
-                )
-            })
+                    )
+                })
             }
-
         </div>
     )
 

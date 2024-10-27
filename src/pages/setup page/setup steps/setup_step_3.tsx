@@ -113,7 +113,7 @@ function GenerationTweaksContainer() {
                 <Baseline>
                     <div className="w-[492px] min-h-[440px] flex flex-col justify-between ">
                         <div className="">
-                            
+
                         </div>
                         <div className="grid place-content-center mb-5">
                             <button onClick={RedirectToGenerated} className="w-52 h-12  border-4 border-grey-200 rounded-[10px] grid place-content-center" >
@@ -123,7 +123,7 @@ function GenerationTweaksContainer() {
                                     </div>
                                 </div>
                             </button>
-                            
+
                         </div>
                     </div>
                 </Baseline>
