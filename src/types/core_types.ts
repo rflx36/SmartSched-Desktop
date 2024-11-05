@@ -35,8 +35,7 @@ export interface IScheduleBufferType {
 
 export interface ISchedulingResultType {
     result: Array<IScheduleBufferType>,
-    instructors_time_allocation: Array<InstructorType>,
-    rooms_time_allocation: Array<TimeAllocationBufferType>,
+    instructors: Array<InstructorType>,
     rooms: Array<string>,
 }
 
@@ -85,8 +84,12 @@ export interface YearSessionSchedule {
     course: {
         code: string,
         title: string
-    }
+    },
     room: string,
+    instructor: {
+        first_name: string,
+        last_name: string
+    },
     subject: {
         code: string,
         title: string
@@ -136,12 +139,12 @@ export interface YearFiltered {
 
 export interface DataFiltered {
     filter: string,
-    monday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule>,
-    tuesday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule>,
-    wednesday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule>,
-    thursday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule>,
-    friday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule>,
-    saturday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule>,
+    monday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule | YearSessionSchedule>,
+    tuesday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule | YearSessionSchedule>,
+    wednesday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule | YearSessionSchedule>,
+    thursday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule | YearSessionSchedule>,
+    friday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule | YearSessionSchedule>,
+    saturday_schedule?: Array<InstructorSessionSchedule | RoomSessionSchedule | YearSessionSchedule>,
     availibility?: AvailabilityFiltered
 }
 

@@ -1,4 +1,4 @@
-import { ClassInstructorType, ClassSectionType, ClassSessionType, UIStateType, ViewScheduleType } from "./types";
+import { ClassInstructorType, ClassSectionType, ClassSessionType, MainScheduleType, UIStateType, ViewScheduleType } from "./types";
 
 export interface MutatorSectionType {
     get: ClassSectionType,
@@ -16,11 +16,16 @@ export interface MutatorInstructorType {
 }
 
 export interface MutatorUIType {
-    get: UIStateType,   
+    get: UIStateType,
     set: (property?: UIStateType) => void
 }
 
-export interface MutatorScheduleType{
+export interface MutatorScheduleType {
     get: ViewScheduleType,
     set: (property?: ViewScheduleType) => void
+}
+
+export interface MutatorMainScheduleType {
+    get: MainScheduleType,
+    set: (property?: MainScheduleType) => void
 }

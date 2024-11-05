@@ -2,8 +2,8 @@ import { ConvertTimeToValue, ConvertValueToTime } from "../../core/utils/time_co
 import { useScheduleStore } from "../../stores/schedule_store";
 import { useSessionStore } from "../../stores/session_store";
 import { useUIStore } from "../../stores/ui_store";
-import { InstructorSessionSchedule, RoomSessionSchedule } from "../../types/core_types";
-import { TimeType } from "../../types/types";
+import { InstructorSessionSchedule, RoomSessionSchedule, YearSessionSchedule } from "../../types/core_types";
+import { ScheduleFilterType, TimeType } from "../../types/types";
 
 
 
@@ -14,6 +14,7 @@ export default function ModalTimeTable() {
     const session = useSessionStore();
 
     const show_availability = schedule.get.view_availability;
+    const filter_type = schedule.get.filter_type;
     const Close = () => {
         ui_state.get.modal = "closed";
         schedule.get.highlighted_id = "";
@@ -44,7 +45,7 @@ export default function ModalTimeTable() {
         return time_list;
     }
     const time_list = TimeList();
-    let combined: Array<any> = [];
+    let combined: Array<InstructorSessionSchedule | RoomSessionSchedule | YearSessionSchedule> = [];
     const x = schedule.get.data;
     if (x.monday_schedule) {
         combined = [...combined, ...x.monday_schedule];
@@ -64,9 +65,9 @@ export default function ModalTimeTable() {
     if (x.saturday_schedule) {
         combined = [...combined, ...x.saturday_schedule];
     }
+    const filtered_sections = [... new Set(combined.map(day => (filter_type == "section") ? (day.subject.code) : (day.course.code + " - " + day.section)))];
 
-    const filtered_sections = [... new Set(combined.map(day => day.section))];
-
+    // const filtered_sections = [... new Set(combined.map(day => (filter_type == "section") ? (day.subject.code) : (day.section)))];
     return (
         <div className="relative animate-fade-scale-in size-max bg-grey-100 outline outline-1 outline-neutral-600/10 rounded-[20px] z-50 px-4 py-2">
             <button
@@ -76,8 +77,8 @@ export default function ModalTimeTable() {
             <div className="w-[970px] h-max flex flex-col items-center">
 
                 <div className="w-full h-[45px]  flex">
-                    <p className="ml-2 mb-2 font-manrope-semibold text-[20px] text-grey-900">{schedule.get.selected} Preview</p>
-                    <div className="mb-2 flex-1 flex mx-2 gap-2">
+                    <p className="mx-2 mb-2 font-manrope-semibold text-[20px] text-grey-900">{schedule.get.selected} Schedule</p>
+                    <div className="mb-2 flex-1 flex mx-2 gap-4">
                         {filtered_sections.map((x, i) => <SectionList info={x} type={i} key={i} />)}
                     </div>
                 </div>
@@ -125,7 +126,7 @@ export default function ModalTimeTable() {
                                     time_end={schedule.get.data.availibility.monday_schedule.time_end}
                                 />
                             }
-                            {schedule.get.data.monday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator availability={show_availability} key={indicator_i} id={"m" + indicator_i} info={indicator_x} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                            {schedule.get.data.monday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator filter={filter_type} availability={show_availability} key={indicator_i} id={"m" + indicator_i} info={indicator_x} type={filtered_sections.indexOf((filter_type == "section") ? indicator_x.subject.code : indicator_x.course.code + " - " + indicator_x.section)} />)}
                         </div>
                         <div className="w-[145px] border-l h-full relative border-grey-300">
                             {time_list.map((_, i) => <div className="w-full border-b border-b-grey-300 h-[50px]" key={i} />)}
@@ -136,7 +137,7 @@ export default function ModalTimeTable() {
                                     time_end={schedule.get.data.availibility.tuesday_schedule.time_end}
                                 />
                             }
-                            {schedule.get.data.tuesday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator availability={show_availability} key={indicator_i} id={"t" + indicator_i} info={indicator_x} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                            {schedule.get.data.tuesday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator filter={filter_type} availability={show_availability} key={indicator_i} id={"t" + indicator_i} info={indicator_x} type={filtered_sections.indexOf((filter_type == "section") ? indicator_x.subject.code : indicator_x.course.code + " - " + indicator_x.section)} />)}
                         </div>
                         <div className="w-[145px] border-l h-full relative border-grey-300">
                             {time_list.map((_, i) => <div className="w-full border-b border-b-grey-300 h-[50px]" key={i} />)}
@@ -147,7 +148,7 @@ export default function ModalTimeTable() {
                                     time_end={schedule.get.data.availibility.wednesday_schedule.time_end}
                                 />
                             }
-                            {schedule.get.data.wednesday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator availability={show_availability} key={indicator_i} id={"w" + indicator_i} info={indicator_x} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                            {schedule.get.data.wednesday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator filter={filter_type} availability={show_availability} key={indicator_i} id={"w" + indicator_i} info={indicator_x} type={filtered_sections.indexOf((filter_type == "section") ? indicator_x.subject.code : indicator_x.course.code + " - " + indicator_x.section)} />)}
                         </div>
                         <div className="w-[145px] border-l h-full relative border-grey-300">
                             {time_list.map((_, i) => <div className="w-full border-b border-b-grey-300 h-[50px]" key={i} />)}
@@ -158,7 +159,7 @@ export default function ModalTimeTable() {
                                     time_end={schedule.get.data.availibility.thursday_schedule.time_end}
                                 />
                             }
-                            {schedule.get.data.thursday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator availability={show_availability} key={indicator_i} id={"th" + indicator_i} info={indicator_x} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                            {schedule.get.data.thursday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator filter={filter_type} availability={show_availability} key={indicator_i} id={"th" + indicator_i} info={indicator_x} type={filtered_sections.indexOf((filter_type == "section") ? indicator_x.subject.code : indicator_x.course.code + " - " + indicator_x.section)} />)}
                         </div>
                         <div className="w-[145px] border-l h-full relative border-grey-300">
                             {time_list.map((_, i) => <div className="w-full border-b border-b-grey-300 h-[50px]" key={i} />)}
@@ -169,7 +170,7 @@ export default function ModalTimeTable() {
                                     time_end={schedule.get.data.availibility.friday_schedule.time_end}
                                 />
                             }
-                            {schedule.get.data.friday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator availability={show_availability} key={indicator_i} id={"f" + indicator_i} info={indicator_x} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                            {schedule.get.data.friday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator filter={filter_type} availability={show_availability} key={indicator_i} id={"f" + indicator_i} info={indicator_x} type={filtered_sections.indexOf((filter_type == "section") ? indicator_x.subject.code : indicator_x.course.code + " - " + indicator_x.section)} />)}
                         </div>
                         <div className="w-[145px] border-l h-full relative border-grey-300">
                             {time_list.map((_, i) => <div className="w-full border-b border-b-grey-300 h-[50px]" key={i} />)}
@@ -180,7 +181,7 @@ export default function ModalTimeTable() {
                                     time_end={schedule.get.data.availibility.saturday_schedule.time_end}
                                 />
                             }
-                            {schedule.get.data.saturday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator availability={show_availability} key={indicator_i} id={"s" + indicator_i} info={indicator_x} type={filtered_sections.indexOf(indicator_x.section)} />)}
+                            {schedule.get.data.saturday_schedule?.map((indicator_x, indicator_i) => <TimeAllocatedIndicator filter={filter_type} availability={show_availability} key={indicator_i} id={"s" + indicator_i} info={indicator_x} type={filtered_sections.indexOf((filter_type == "section") ? indicator_x.subject.code : indicator_x.course.code + " - " + indicator_x.section)} />)}
                         </div>
                     </div>
                 </div>
@@ -217,7 +218,7 @@ function SectionList(props: { info: string, type: number }) {
     return (
         <div className="w-max  flex items-center ">
             <div className={GetStyle()} />
-            <p className="font-manrope-semibold text-grey-900 text-[14px]">{props.info}</p>
+            <p className="ml-1 font-manrope-semibold text-grey-900 text-[14px]">{props.info}</p>
         </div>
     )
 }
@@ -226,15 +227,51 @@ function SectionList(props: { info: string, type: number }) {
 
 
 
-function TimeAllocatedIndicator(props: { info: InstructorSessionSchedule | RoomSessionSchedule, type: number, id: string, availability: boolean }) {
+function TimeAllocatedIndicator(props: { info: InstructorSessionSchedule | RoomSessionSchedule | YearSessionSchedule, type: number, id: string, availability: boolean, filter: ScheduleFilterType }) {
+    const class_session = useSessionStore();
     const schedule = useScheduleStore();
     const time_start = props.info.time_start;
     const time_end = props.info.time_end;
-    const instructor = props.info as InstructorSessionSchedule;
-    const room = props.info as RoomSessionSchedule;
-    const info_text = ((instructor).room == undefined) ? (room.subject.code) : (room.course.code + " " + instructor.section);
-    const sub_text = ((instructor).room == undefined) ? (room.instructor?.first_name + " " + room.instructor?.last_name) : instructor.room;
-    const class_session = useSessionStore();
+    // const instructor = props.info as InstructorSessionSchedule;
+    // const room = props.info as RoomSessionSchedule;
+    // const info_text = ((instructor).room == undefined) ? (room.subject.code) : (room.course.code + " " + instructor.section);
+    // const sub_text = ((instructor).room == undefined) ? (room.instructor?.first_name + " " + room.instructor?.last_name) : instructor.room;
+    // const sub_info_1 ;
+    // const sub_info_2 ; 
+
+    // let info_text = props.info.subject.code;
+    // let sub_text = props.info.instructor.first_name + " "+ props.info
+
+    let info_text = "";
+    let sub_text = "";
+    let sub_info_1 = "";
+    let sub_info_2 = "";
+    switch (props.filter) {
+        case "room":
+            const data_room = props.info as RoomSessionSchedule;
+            info_text = data_room.subject.code;
+            sub_text = data_room.instructor.first_name + " " + data_room.instructor.last_name;
+            sub_info_1 = data_room.instructor.first_name + " " + data_room.instructor.last_name;
+            sub_info_2 = schedule.get.selected;
+            break;
+        case "instructor":
+            const data_instructor = props.info as InstructorSessionSchedule;
+            info_text = data_instructor.subject.code;
+            sub_text = data_instructor.room;
+            sub_info_1 = schedule.get.selected;
+            sub_info_2 = data_instructor.room;
+            break;
+        case "section":
+            const data_section = props.info as YearSessionSchedule;
+            info_text = data_section.subject.code;
+            sub_text = data_section.instructor.first_name + " " + data_section.instructor.last_name;
+            sub_info_1 = data_section.instructor.first_name + " " + data_section.instructor.last_name;
+            sub_info_2 = data_section.room;
+            break;
+    }
+
+
+
     const session_time_start = ConvertTimeToValue(class_session.get.time_start)
     const style_time_length = ((ConvertTimeToValue(time_end)) + 1) - (ConvertTimeToValue(time_start));
     const style_length = (style_time_length / 30) * 25;
@@ -432,7 +469,7 @@ function TimeAllocatedIndicator(props: { info: InstructorSessionSchedule | RoomS
                 height_style = "h-[600px]";
                 break;
         }
-        const availability = (props.availability)?"":"bg-grey-100 border-b border-b-grey-300 ";
+        const availability = (props.availability) ? "" : "bg-grey-100 border-b border-b-grey-300 ";
         return ` ${top_style} ${height_style} ${availability} `;
     }
 
@@ -443,9 +480,9 @@ function TimeAllocatedIndicator(props: { info: InstructorSessionSchedule | RoomS
 
     return (
         <div className={GetLayout() + "  absolute rounded-[3px]  w-full ease-bezier-in duration-150 flex items-center justify-center"}>
-            <div className="pointer-events-none bg-grey-100 absolute w-[calc(100%-10px)] h-[calc(100%-10px)] rounded-[5px]"/>
+            <div className="pointer-events-none bg-grey-100 absolute w-[calc(100%-10px)] h-[calc(100%-10px)] rounded-[5px]" />
             <div onClick={ViewInfo} className={GetStyle() + " relative hover:bg-opacity-75 cursor-pointer ease-in duration-150 text-grey-750 bg-opacity-50 w-[calc(100%-10px)] h-[calc(100%-10px)] rounded-[5px] text-center place-content-center grid"}>
-                
+
                 <p className="text-[14px] font-manrope-bold">{info_text}</p>
                 <p className="text-[12px] font-manrope-medium">{sub_text}</p>
                 {
@@ -467,9 +504,9 @@ function TimeAllocatedIndicator(props: { info: InstructorSessionSchedule | RoomS
                                 <div className="w-[170px] text-left text-grey-500 text-[14px] font-manrope-semibold">
                                     <p>{props.info.course.code} {props.info.section}</p>
                                     <p>{props.info.subject.code}</p>
-                                    <p>{((instructor).room != undefined) ? (schedule.get.selected) : (room.instructor?.first_name + " " + room.instructor?.last_name)}</p>
+                                    <p>{sub_info_1}</p>
                                     <p>{ConvertTime(props.info.time_start)} - {ConvertTime(props.info.time_end, 1)}</p>
-                                    <p>{((instructor).room == undefined) ? (schedule.get.selected) : instructor?.room}</p>
+                                    <p>{sub_info_2}</p>
                                     <p></p>
                                 </div>
                             </div>
@@ -485,7 +522,7 @@ function TimeAllocatedIndicator(props: { info: InstructorSessionSchedule | RoomS
 function TimeAvailabilityIndicator(props: { time_start: TimeType, time_end: TimeType }) {
     const class_session = useSessionStore();
     const session_time_start = ConvertTimeToValue(class_session.get.time_start)
-    const style_time_length = ((ConvertTimeToValue(props.time_end)) ) - (ConvertTimeToValue(props.time_start));
+    const style_time_length = ((ConvertTimeToValue(props.time_end))) - (ConvertTimeToValue(props.time_start));
     const style_length = (style_time_length / 30) * 25;
     const style_start = ((ConvertTimeToValue(props.time_start) - session_time_start) / 30) * 25;
 
@@ -646,7 +683,7 @@ function TimeAvailabilityIndicator(props: { time_start: TimeType, time_end: Time
 
     return (
         <div className={GetLayout() + " absolute w-full  ease-bezier-in duration-150 flex items-center justify-center"}>
-            <div className="relative h-full w-full border-b border-grey-300 bg-grey-100 [background-image:repeating-linear-gradient(60deg,_#ccc_0px,_#ccc_1px,_transparent_0,_transparent_10px)] "/>
+            <div className="relative h-full w-full border-b border-grey-300 bg-grey-100 [background-image:repeating-linear-gradient(60deg,_#ccc_0px,_#ccc_1px,_transparent_0,_transparent_10px)] " />
         </div>
     )
 

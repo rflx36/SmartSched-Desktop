@@ -17,7 +17,7 @@ export type ModalsType = "rooms" | "courses" | "sections" | "instructors" | "clo
 export type ModalsActionType = "confirmed" | "cancelled" | null;
 export type WeekType = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 export type SidebarsType = "dashboard" | "schedules" | "setup" | "subjects" | "instructors";
-
+export type ScheduleFilterType = "instructor" | "room" | "section";
 
 
 
@@ -43,6 +43,7 @@ export interface Subject {
     code: string,
     total_hours: number,
     is_dividable: boolean,
+
 }
 
 export interface SubjectHasLabLec {
@@ -83,11 +84,7 @@ export interface UIStateType {
         sections: number,
     } | null,
     modal_edit_instructors: InstructorType | null,
-    modal_upload_auth: {
-        semester: SemesterType,
-        rooms: Array<RoomType>,
-        data: Array<IScheduleBufferType>
-    } | null,
+    modal_upload_auth: MainScheduleType,
     dropdown_course: string
 }
 
@@ -121,6 +118,7 @@ export interface InstructorType {
     friday?: TimeAvailabilityType,
     saturday?: TimeAvailabilityType,
     load?: number
+    assigned_subjects?: Array<Subject | SubjectHasLabLec>
 }
 
 export interface ClassInstructorType {
@@ -149,6 +147,23 @@ export interface ViewScheduleType {
     selected: string,
     data: DataFiltered,
     highlighted_id: string,
-    view_availability : boolean,
+    filter_type: ScheduleFilterType,
+    view_availability: boolean,
 }
+
+
+export type MainScheduleType = {
+    semester: SemesterType,
+    rooms: Array<RoomType>,
+    courses: Array<CourseType>
+    data: Array<IScheduleBufferType>,
+    instructors: Array<InstructorType>,
+    inputs: Array<CurrentSemester>
+    time_start: TimeType,
+    time_end: TimeType,
+    break_time_start: TimeType,
+    break_time_end: TimeType,
+} | null;
+
+
 

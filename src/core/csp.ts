@@ -29,7 +29,7 @@ export default class SchedulingCSP {
     private rooms_lab: Array<string> = [];
     private rooms_allocation: Array<TimeAllocationBufferType> = [];
     private instructors_allocation: Array<TimeAllocationBufferType> = [];
-
+    private section_allocation: Array<TimeAllocationBufferType> = [];
     private schedule_result_queue: Array<IScheduleBufferType> = [];
 
     private schedule_result: Array<IScheduleBufferType> = [];
@@ -47,7 +47,7 @@ export default class SchedulingCSP {
     private current_day: WeekType = "monday";
     private current_subsequent_day: WeekType = "thursday";
     private current_is_partitionable: boolean = false;
-
+    private current_section_allocation:number = 0;
     private current_week_buffer: Array<number> = [];
     private inputs: ICSP;
 
@@ -97,12 +97,16 @@ export default class SchedulingCSP {
             this.rooms_allocation.push(`${result.room};${day_index};${result.time_end}`);
             this.instructors_allocation.push(`${instructor_index};${day_index};${result.time_start}`);
             this.instructors_allocation.push(`${instructor_index};${day_index};${result.time_end}`);
+            this.section_allocation.push(`${this.current_section_allocation};${day_index};${result.time_start}`);
+            this.section_allocation.push(`${this.current_section_allocation};${day_index};${result.time_end}`);
             if (result.subject.is_dividable) {
                 const subsequent_day_index = day_index + this.subsequent_subject_day_interval;
                 this.rooms_allocation.push(`${result.room};${subsequent_day_index};${result.time_start}`);
                 this.rooms_allocation.push(`${result.room};${subsequent_day_index};${result.time_end}`);
                 this.instructors_allocation.push(`${instructor_index};${subsequent_day_index};${result.time_start}`);
                 this.instructors_allocation.push(`${instructor_index};${subsequent_day_index};${result.time_end}`);
+                this.section_allocation.push(`${this.current_section_allocation};${subsequent_day_index};${result.time_start}`);
+                this.section_allocation.push(`${this.current_section_allocation};${subsequent_day_index};${result.time_end}`);
             }
             if (this.instructors[instructor_index].load == null) {
                 this.instructors[instructor_index].load = 0;
@@ -121,10 +125,13 @@ export default class SchedulingCSP {
 
             let rooms_to_remove = [];
             let instructors_to_remove = [];
+            let schedule_to_remove = [];
             rooms_to_remove.push(`${result.room};${day_index};${result.time_start}`);
             rooms_to_remove.push(`${result.room};${day_index};${result.time_end}`);
             instructors_to_remove.push(`${instructor_index};${day_index};${result.time_start}`);
             instructors_to_remove.push(`${instructor_index};${day_index};${result.time_end}`);
+            schedule_to_remove.push(`${this.current_section_allocation};${day_index};${result.time_start}`);
+            schedule_to_remove.push(`${this.current_section_allocation};${day_index};${result.time_end}`);
             if (result.subject.is_dividable) {
                 const subsequent_day_index = day_index + this.subsequent_subject_day_interval;
 
@@ -132,9 +139,12 @@ export default class SchedulingCSP {
                 rooms_to_remove.push(`${result.room};${subsequent_day_index};${result.time_end}`)
                 instructors_to_remove.push(`${instructor_index};${subsequent_day_index};${result.time_start}`);
                 instructors_to_remove.push(`${instructor_index};${subsequent_day_index};${result.time_end}`);
+                schedule_to_remove.push(`${this.current_section_allocation};${subsequent_day_index};${result.time_start}`);
+                schedule_to_remove.push(`${this.current_section_allocation};${subsequent_day_index};${result.time_end}`);
             }
             this.rooms_allocation = this.rooms_allocation.filter(x => !rooms_to_remove.includes(x));
             this.instructors_allocation = this.instructors_allocation.filter(x => !instructors_to_remove.includes(x));
+            this.section_allocation = this.section_allocation.filter(x => !schedule_to_remove.includes(x));
             if (this.instructors[instructor_index].load == null) {
                 this.instructors[instructor_index].load = 0;
             }
@@ -149,17 +159,19 @@ export default class SchedulingCSP {
         const check_availability_room = CheckAvailability(this.rooms_allocation, this.current_room, this.current_time_start, this.current_time_end, this.current_day);
         const check_availability_instructor = CheckAvailability(this.instructors_allocation, this.current_instructor, this.current_time_start, this.current_time_end, this.current_day);
         const check_availability_instructor_schedule = CheckInstructorTimeAvailability(current_instructor_details, this.current_time_start, this.current_time_end, this.current_day);
+        const check_availability_schedule = CheckAvailability(this.section_allocation, this.current_section_allocation, this.current_time_start, this.current_time_end, this.current_day);
         if (this.current_is_partitionable) {
             //if partitionable also checks for the subsequent schedule 
 
             const check_availability_subsequent_room = CheckAvailability(this.rooms_allocation, this.current_room, this.current_time_start, this.current_time_end, this.current_subsequent_day);
             const check_availability_subsequent_instructor = CheckAvailability(this.instructors_allocation, this.current_instructor, this.current_time_start, this.current_time_end, this.current_subsequent_day);
             const check_availability_subsequent_instructor_schedule = CheckInstructorTimeAvailability(current_instructor_details, this.current_time_start, this.current_time_end, this.current_subsequent_day);
+            const check_availability_subsequent__schedule = CheckAvailability(this.section_allocation, this.current_section_allocation, this.current_time_start, this.current_time_end, this.current_subsequent_day);
 
-            return (check_availability_room || check_availability_instructor || check_availability_instructor_schedule || check_availability_subsequent_room || check_availability_subsequent_instructor || check_availability_subsequent_instructor_schedule)
+            return (check_availability_room || check_availability_instructor || check_availability_instructor_schedule || check_availability_subsequent_room || check_availability_subsequent_instructor || check_availability_subsequent_instructor_schedule || check_availability_schedule || check_availability_subsequent__schedule)
         }
         else {
-            return (check_availability_room || check_availability_instructor || check_availability_instructor_schedule);
+            return (check_availability_room || check_availability_instructor || check_availability_instructor_schedule || check_availability_schedule);
         }
     }
 
@@ -183,7 +195,7 @@ export default class SchedulingCSP {
 
         while (is_not_available) {
             limit++;
-            if (limit >= 10000) {
+            if (limit >= 1000) {
                 console.log("ENDED AT: course:[" + this.current_course.code + "] section:[" + this.current_section +
                     "] subject:[" + this.current_subject.code + "] time_start:[" + this.current_time_start + "] time_end:[" + this.current_time_end,
                     "] day:[" + this.current_day + (this.current_is_partitionable && "] subsequent:[" + this.current_subsequent_day) +
@@ -219,7 +231,7 @@ export default class SchedulingCSP {
             }
 
             if (this.current_is_partitionable && (this.days.indexOf(this.current_day) > 2)) {
-                
+
                 this.current_day = "monday";
                 this.current_subsequent_day = GetPrecedingDay(this.current_day, this.subsequent_subject_day_interval);
                 if (week_allocation_buffer.includes("monday") && week_allocation_buffer.includes("tuesday") && week_allocation_buffer.includes("wednesday")) {
@@ -365,7 +377,9 @@ export default class SchedulingCSP {
         //am pm? 
         //rotate / calcluate available time of the room and check if the will amount of hours of the sections would be able to occupy it
         if (subjects_to_be_occupied > room_sessions_available) {
+            const temp = this.current_room;
             this.current_room++;
+            console.log("Switched from "+temp+" to"+this.current_room);
         }
 
     }
@@ -502,10 +516,11 @@ export default class SchedulingCSP {
 
         for (let i = 1; i <= sections_amount; i++) {
             const section_name = (this.current_year + String.fromCharCode(96 + i)).toUpperCase();
-
+            this.current_section_allocation++;
             this.current_day = "monday";
             this.current_session = [0, 0, 0, 0, 0, 0];
             this.current_section = section_name;
+            
             this.SetRooms();
             if (!this.SetSubjects([], 0)) {
                 console.log("backtracked");
@@ -575,8 +590,7 @@ export default class SchedulingCSP {
 
         const result_response: ISchedulingResultType = {
             result: this.schedule_result,
-            instructors_time_allocation: this.instructors,
-            rooms_time_allocation: this.rooms_allocation,
+            instructors: this.instructors,
             rooms: this.rooms,
         }
         return result_response;

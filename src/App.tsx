@@ -11,15 +11,29 @@ import ModalDelete from "./components/modals/modal_delete";
 import ModalInstructors from "./components/modals/modal_instructors";
 import ModalTimeTable from "./components/modals/modal_timetable";
 import ModalUploadAuth from "./components/modals/modal_upload_auth";
+import PageSchedule from "./pages/schedule page";
+import PageSubjects from "./pages/subject page";
+import { FetchScheduleMain } from "./firebase/firebase_fetch_main";
+import { useMainScheduleStore } from "./stores/main_schedule_store";
+import PageDashboard from "./pages/dashboard page";
+import PageInstructor from "./pages/instructor page";
 // import { useSectionStore } from "./stores/section_store";
 // import { useSessionStore } from "./stores/session_store";
 
 function App() {
   const ui_state = useUIStore();
+  const main = useMainScheduleStore();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => setCurrentUser((user) ? user : null))
+    const FetchMain = async () => {
+      main.get = await FetchScheduleMain();
+      main.set();
+
+    }
+    FetchMain();
+
   }, [])
 
   if (currentUser != auth.currentUser) {
@@ -80,15 +94,15 @@ function Page() {
 
   switch (ui_state.get.sidebar_active) {
     case "dashboard":
-      return <></>;
+      return <PageDashboard />;
     case "schedules":
-      return <></>;
+      return <PageSchedule />;
     case "setup":
       return <PageSetup />;
     case "subjects":
-      return <></>;
+      return <PageSubjects />;
     case "instructors":
-      return <></>;
+      return <PageInstructor />;
 
   }
 

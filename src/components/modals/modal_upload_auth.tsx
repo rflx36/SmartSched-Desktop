@@ -3,6 +3,8 @@ import { UploadScheduleToMain } from "../../firebase/firebase_upload";
 import { useUIStore } from "../../stores/ui_store";
 import Input from "../input";
 import Button from "../button";
+import { useMainScheduleStore } from "../../stores/main_schedule_store";
+import { FetchScheduleMain } from "../../firebase/firebase_fetch_main";
 
 
 
@@ -14,6 +16,7 @@ import Button from "../button";
 
 export default function ModalUploadAuth() {
     const ui_state = useUIStore();
+    const main = useMainScheduleStore();
     const [input, setInput] = useState("");
     const Close = () => {
         ui_state.get.modal = "closed";
@@ -24,6 +27,9 @@ export default function ModalUploadAuth() {
     const Confirmed = async () => {
         if (ui_state.get.modal_upload_auth) {
             await UploadScheduleToMain(ui_state.get.modal_upload_auth);
+
+            main.get = await FetchScheduleMain();
+            main.set();
 
         }
         else {
@@ -36,7 +42,7 @@ export default function ModalUploadAuth() {
 
     }
     const key = `ICS ${current_year} ${current_semester} Semester`;
-    
+
     return (
         <div className="relative  size-max bg-grey-100 outline outline-1 outline-neutral-600/10 rounded-lg z-50 px-4 py-2">
             <button

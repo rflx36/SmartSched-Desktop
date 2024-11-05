@@ -316,7 +316,7 @@ function SetupYearTab(props: { isActive: boolean, year: string, onClick: () => v
             before:w-full before:bg-neutral-100 before:h-full before:absolute before:content[''] 
             before:left-0 before:top-0 before:rounded-t-lg before:z-[-1] 
             before:border before:border-neutral-300 before:border-b-0">
-                <p >{props.year} years</p>
+                <p >{props.year} year</p>
             </button>
         ) :
         (
