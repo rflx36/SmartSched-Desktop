@@ -19,7 +19,8 @@ import PageDashboard from "./pages/dashboard page";
 import PageInstructor from "./pages/instructor page";
 // import { useSectionStore } from "./stores/section_store";
 // import { useSessionStore } from "./stores/session_store";
-
+import "../src/anim_blob.css"
+import ModalRequest from "./components/modals/modal_request";
 function App() {
   const ui_state = useUIStore();
   const main = useMainScheduleStore();
@@ -51,8 +52,11 @@ function App() {
   // console.log(sessions.get);
   if (currentUser == null) {
     return (
-      <div className="w-full h-full grid place-content-center bg-baseline-base">
-        <SignInPage />
+      <div className="w-full h-full grid place-content-center bg-baseline-base ">
+        {/* <BlobComponent> */}
+          <SignInPage />
+
+        {/* </BlobComponent> */}
       </div>
     )
   }
@@ -74,6 +78,8 @@ function App() {
                     {(ui_state.get.modal == "instructors") && <ModalInstructors />}
                     {(ui_state.get.modal == "schedule") && <ModalTimeTable />}
                     {(ui_state.get.modal == "upload auth") && <ModalUploadAuth />}
+                    {(ui_state.get.modal == "request") && <ModalRequest />}
+                    
                   </div>
                 </div>
               )

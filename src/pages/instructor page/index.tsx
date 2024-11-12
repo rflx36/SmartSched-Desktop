@@ -28,6 +28,8 @@ export default function PageInstructor() {
         schedule.get.data = x;
         schedule.get.filter_type = "instructor";
         schedule.get.view_availability = true;
+        schedule.get.time_start = main.get?.time_start || "00:00";
+        schedule.get.time_end = main.get?.time_end || "00:00";
         schedule.set();
         ui_state.get.modal = "schedule";
         ui_state.set();

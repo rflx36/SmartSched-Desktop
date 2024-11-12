@@ -14,6 +14,7 @@ export default function SetupStep_3() {
     const class_section = useSectionStore();
     const class_instructors = useInstructorStore();
 
+
     const inputs: ICSP = {
         time_start: class_session.get.time_start,
         time_end: class_session.get.time_end,

@@ -296,8 +296,8 @@ export default function SetupStep_0() {
                         <Baseline widthFull>
                             <div className="flex justify-between">
                                 <div className="flex gap-1" >
-                                    <Input type="time" label="Start Time" value={timeStart} onChange={e => setTimeStart(e)} />
-                                    <Input type="time" label="End Time" value={timeEnd} onChange={e => setTimeEnd(e)} />
+                                    <Input type="time" label="Start Time" value={timeStart} onChange={e => {setTimeStart(e)}} />
+                                    <Input type="time" label="End Time" value={timeEnd} onChange={e => {setTimeEnd(e)}} />
                                 </div>
 
                                 <div className="bg-baseline-outline rounded-full w-[1px] h-14 m-[6px]"></div>

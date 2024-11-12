@@ -11,7 +11,6 @@ import { ScheduleFilterType, TimeType } from "../../types/types";
 export default function ModalTimeTable() {
     const ui_state = useUIStore();
     const schedule = useScheduleStore();
-    const session = useSessionStore();
 
     const show_availability = schedule.get.view_availability;
     const filter_type = schedule.get.filter_type;
@@ -34,8 +33,8 @@ export default function ModalTimeTable() {
 
     const TimeList = () => {
 
-        const time_start_value = ConvertTimeToValue(session.get.time_start);
-        const time_end_value = ConvertTimeToValue(session.get.time_end);
+        const time_start_value = ConvertTimeToValue(schedule.get.time_start);
+        const time_end_value = ConvertTimeToValue(schedule.get.time_end);
         const time_list = [];
         const total_hours = Math.floor((time_end_value - time_start_value) / 60);
         for (let i = 0; i <= total_hours; i++) {

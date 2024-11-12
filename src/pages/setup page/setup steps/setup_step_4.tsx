@@ -247,6 +247,7 @@ export default function SetupStep_4() {
 function ScheduleContainer(props: { filter: number, data: ISchedulingResultType, rooms: Array<RoomType> }) {
     const ui_state = useUIStore();
     const schedule = useScheduleStore();
+    const session = useSessionStore();
     const filtered_data = FilterResult(props.filter, props.data.result, props.rooms.map(x => x.room_name));
     console.log(filtered_data);
     const ViewSchedule = (x: DataFiltered) => {
@@ -255,6 +256,8 @@ function ScheduleContainer(props: { filter: number, data: ISchedulingResultType,
         schedule.get.data = x;
         schedule.get.filter_type = GetFilterType();
         schedule.get.view_availability = (props.filter == 2);
+        schedule.get.time_start = session.get.time_start;
+        schedule.get.time_end = session.get.time_end;
         schedule.set();
         ui_state.get.modal = "schedule";
         ui_state.set();

@@ -6,6 +6,7 @@ interface IButton {
     widthType?: "medium" | "large" | "full",
     roundedFull?: boolean,
     style?: "primary" | "secondary",
+    textStyle?: string,
 
 }
 
@@ -28,7 +29,7 @@ export default function Button(props: IButton) {
     const use_rounded_full = (!!props.roundedFull) ? "rounded-full " : "rounded-md";
     const use_is_disabled = (!!props.isDisabled) ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:border-black/50 transition-all hover:bg-neutral-500 hover:text-white";
 
-    const custom_style = `${use_width_full} ${use_rounded_full} ${use_is_disabled}`;
+    const custom_style = `${use_width_full} ${use_rounded_full} ${use_is_disabled} ${props.textStyle}`;
 
     return (
         <button

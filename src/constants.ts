@@ -1,5 +1,5 @@
 import { ClassInstructorType, ClassSectionType, ClassSessionType, UIStateType, ViewScheduleType } from "./types/types"
-const use_example = false;
+const use_example = true;
 
 export const DEFAULT_CLASS_SESSIONS: ClassSessionType = {
     time_start: "07:00",
@@ -110,6 +110,7 @@ export const DEFAULT_UI_STATE: UIStateType = {
     modal_edit_subjects: null,
     modal_edit_instructors: null,
     modal_upload_auth: null,
+    modal_request: null,
     dropdown_course: ""
 }
 
@@ -118,7 +119,9 @@ export const DEFAULT_VIEW_SCHEDULE: ViewScheduleType = {
     data: { filter: "" },
     highlighted_id: "",
     filter_type: "room",
-    view_availability: false
+    view_availability: false,
+    time_start: "00:00",
+    time_end: "00:00"
 }
 
 

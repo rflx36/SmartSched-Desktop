@@ -80,7 +80,7 @@ export default function PageSchedule() {
                             </Baseline>
                         </div>
                         <div className="h-auto flex-1 overflow-y-scroll ">
-                            <ScheduleContainer data={data} filter={filterType} />
+                            <ScheduleContainer data={data} filter={filterType} time_start={main.get?.time_start || "00:00"} time_end={main.get?.time_end || "00:00"} />
                         </div>
                     </div>
                 </Border>
@@ -135,7 +135,7 @@ function FilterDropdown(props: { items: Array<string>, selection: (x: any) => vo
 
 
 
-function ScheduleContainer(props: { data: Array<DataFiltered>, filter: string }) {
+function ScheduleContainer(props: { data: Array<DataFiltered>, filter: string, time_start: TimeType, time_end: TimeType }) {
     const filter_case = (props.filter == "1st Year" || props.filter == "2nd Year" || props.filter == "3rd Year" || props.filter == "4th Year");
     const ui_state = useUIStore();
     const schedule = useScheduleStore();
@@ -145,6 +145,8 @@ function ScheduleContainer(props: { data: Array<DataFiltered>, filter: string })
         schedule.get.data = x;
         schedule.get.filter_type = GetFilterType();
         schedule.get.view_availability = (props.filter == "Instructor");
+        schedule.get.time_start = props.time_start;
+        schedule.get.time_end = props.time_end;
         schedule.set();
         ui_state.get.modal = "schedule";
         ui_state.set();

@@ -13,7 +13,7 @@ type m = h | '25' | '26' | '27' | '28' | '29' | '30'
 export type TimeType = `${h}:${m}`;
 export type YearType = 1 | 2 | 3 | 4;
 export type SemesterType = "1st" | "2nd";
-export type ModalsType = "rooms" | "courses" | "sections" | "instructors" | "closed" | "delete" | "schedule" | "upload auth";
+export type ModalsType = "rooms" | "courses" | "sections" | "instructors" | "closed" | "delete" | "schedule" | "upload auth" | "request";
 export type ModalsActionType = "confirmed" | "cancelled" | null;
 export type WeekType = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 export type SidebarsType = "dashboard" | "schedules" | "setup" | "subjects" | "instructors";
@@ -85,6 +85,7 @@ export interface UIStateType {
     } | null,
     modal_edit_instructors: InstructorType | null,
     modal_upload_auth: MainScheduleType,
+    modal_request: RequestTypes | null,
     dropdown_course: string
 }
 
@@ -149,6 +150,8 @@ export interface ViewScheduleType {
     highlighted_id: string,
     filter_type: ScheduleFilterType,
     view_availability: boolean,
+    time_start: TimeType,
+    time_end: TimeType
 }
 
 
@@ -167,3 +170,27 @@ export type MainScheduleType = {
 
 
 
+export interface RequestDBTypes {
+    day_validity: string,
+    message: string,
+    name: string,
+    room_name: string,
+    section: string,
+    time_end: string,
+    time_start: string,
+    time_requested: TimeType,
+    uid: string,
+    id:string
+}
+
+export interface RequestTypes {
+    message: string,
+    name: string,
+    room: string,
+    section: string,
+    time_start: string,
+    time_end: string,
+    time_requested: TimeType,
+    uid: string,
+    id: string
+}
