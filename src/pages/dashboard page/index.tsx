@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Border from "../../components/border";
 import Button from "../../components/button";
 import { useMainScheduleStore } from "../../stores/main_schedule_store"
 import { useUIStore } from "../../stores/ui_store";
@@ -19,9 +18,11 @@ export default function PageDashboard() {
     const ui_state = useUIStore();
 
     if (main.get == null) {
+        // ui_state.get.sidebar_active = "schedules";
+        // ui_state.set();
         return (
-            <div className="">
-                No Assigned Main Schedule Yet
+            <div className="flex justify-center items-center">
+                <p className="font-manrope-semibold text-grey-600">No Assigned Main Schedule Yet</p>
             </div>
         )
     }
