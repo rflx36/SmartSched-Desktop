@@ -21,6 +21,7 @@ import PageInstructor from "./pages/instructor page";
 // import { useSessionStore } from "./stores/session_store";
 import "../src/anim_blob.css"
 import ModalRequest from "./components/modals/modal_request";
+import ModalViewListed from "./components/modals/modal_view_schedule";
 function App() {
   const ui_state = useUIStore();
   const main = useMainScheduleStore();
@@ -79,6 +80,7 @@ function App() {
                     {(ui_state.get.modal == "schedule") && <ModalTimeTable />}
                     {(ui_state.get.modal == "upload auth") && <ModalUploadAuth />}
                     {(ui_state.get.modal == "request") && <ModalRequest />}
+                    {(ui_state.get.modal == "view listed schedule") && <ModalViewListed />}
                     
                   </div>
                 </div>

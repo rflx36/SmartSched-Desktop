@@ -13,13 +13,19 @@ type m = h | '25' | '26' | '27' | '28' | '29' | '30'
 export type TimeType = `${h}:${m}`;
 export type YearType = 1 | 2 | 3 | 4;
 export type SemesterType = "1st" | "2nd";
-export type ModalsType = "rooms" | "courses" | "sections" | "instructors" | "closed" | "delete" | "schedule" | "upload auth" | "request";
+export type ModalsType = "rooms" | "courses" | "sections" | "instructors" | "closed" | "delete" | "schedule" | "upload auth" | "request" | "view listed schedule";
 export type ModalsActionType = "confirmed" | "cancelled" | null;
 export type WeekType = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 export type SidebarsType = "dashboard" | "schedules" | "setup" | "subjects" | "instructors";
 export type ScheduleFilterType = "instructor" | "room" | "section";
 
 
+export interface ViewListedScheduleType {
+    room_name: string,
+    is_available: boolean,
+    allocated_list: Array<AllocatedListType>,
+    time_display: string
+}
 
 
 export interface SessionSchedule {
@@ -86,6 +92,7 @@ export interface UIStateType {
     modal_edit_instructors: InstructorType | null,
     modal_upload_auth: MainScheduleType,
     modal_request: RequestTypes | null,
+    modal_view_listed: ViewListedScheduleType | null,
     dropdown_course: string
 }
 
@@ -180,7 +187,7 @@ export interface RequestDBTypes {
     time_start: string,
     time_requested: TimeType,
     uid: string,
-    id:string
+    id: string
 }
 
 export interface RequestTypes {
@@ -193,4 +200,42 @@ export interface RequestTypes {
     time_requested: TimeType,
     uid: string,
     id: string
+}
+
+
+export interface RejectDBTypes {
+    day_validity: string,
+    message: string,
+    time_rejected: TimeType,
+    uid: string
+}
+
+export interface AcceptDBTypes {
+    day_validity: string,
+    message: string,
+    time_accepted: TimeType,
+    uid: string,
+    room: string,
+    time_start: string,
+    time_end: string,
+    name: string,
+    section: string,
+    id: string
+}
+
+
+export interface AllocatedListType {
+    time: string,
+    section: string,
+    subject: string,
+    instructor: string
+}
+
+export interface FloorType {
+    is_available: boolean,
+    name: string,
+    text: string,
+    allocation: Array<AllocatedListType>,
+    time_display: string
+
 }

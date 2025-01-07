@@ -44,7 +44,6 @@ export default function CheckRoomTimeAvailability(
                 in_session = false;
             }
         }
-
     }
     return time_value_available / 60;
 }

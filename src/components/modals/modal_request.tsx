@@ -1,17 +1,7 @@
-import { push, ref, remove, set } from "firebase/database";
+import { push, ref, remove } from "firebase/database";
 import { useUIStore } from "../../stores/ui_store";
 import { realtime_database } from "../../firebase/firebase_config";
 import { ConvertValueToTime } from "../../core/utils/time_converter";
-
-
-
-
-
-
-
-
-
-
 
 
 export default function ModalRequest() {
@@ -146,8 +136,8 @@ export default function ModalRequest() {
                         </div>
                     </div>
 
-                    <div className="my-2 rounded-lg bg-neutral-200/75 ">
-                        <label className="text-[12px] font-manrope-bold text-grey-900 translate-y-1 ml-2">Name</label>
+                    <div className="my-2 rounded-lg bg-neutral-200/75 " title={"user-id: "+ui_state.get.modal_request?.uid}>
+                        <label className="text-[12px] font-manrope-bold text-grey-900 translate-y-1 ml-2">Name </label>
                         <div className="h-7 -translate-y-[2px] rounded-md items-center flex px-2 py-[4px]">
                             <p>{ui_state.get.modal_request?.name}</p>
                         </div>

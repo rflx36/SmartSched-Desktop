@@ -111,6 +111,7 @@ export const DEFAULT_UI_STATE: UIStateType = {
     modal_edit_instructors: null,
     modal_upload_auth: null,
     modal_request: null,
+    modal_view_listed: null,
     dropdown_course: ""
 }
 
